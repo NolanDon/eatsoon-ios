@@ -5,7 +5,7 @@ class AppConfig {
   static const String bundleId = 'com.boxill.eatsoon';
 
   /// RevenueCat public SDK key for the EatSoon project.
-  static const String revenueCatApiKey = 'test_XtSBciyGgMeqaoxuTXMzHSHLcWL';
+  static const String revenueCatApiKey = 'appl_GQGkMsdwKwJgUQuievzGISMpigN';
   static const String entitlementId = 'pro';
   static const String offeringId = 'default';
 
