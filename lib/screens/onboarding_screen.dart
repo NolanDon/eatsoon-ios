@@ -1,3 +1,5 @@
+import '../experience/experience_widgets.dart';
+
 import 'package:eatsoon/state/providers.dart';
 import 'package:eatsoon/theme.dart';
 import 'package:eatsoon/widgets/primary_button.dart';
@@ -28,7 +30,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   void _next() {
-    if (_page < 2) {
+    if (_page < 4) {
       _controller.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -40,8 +42,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _askPermission() async {
     setState(() => _permissionAsked = true);
-    final granted =
-        await ref.read(notificationServiceProvider).requestPermission();
+    final granted = await ref
+        .read(notificationServiceProvider)
+        .requestPermission();
     setState(() => _permissionGranted = granted);
   }
 
@@ -65,28 +68,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 controller: _controller,
                 onPageChanged: (i) => setState(() => _page = i),
                 children: [
-                  _Page(
+                  const _Page(
                     image: 'assets/onboarding_1.webp',
                     title: "Good food shouldn't go to waste",
-                    subtitle:
-                        'Too much of what we buy ends up in the trash. EatSoon makes sure it doesn\u2019t.',
+                    subtitle: 'Too much of what we buy ends up in the trash. EatSoon makes sure it doesn\u2019t.',
                   ),
-                  _Page(
+                  const _Page(
                     image: 'assets/onboarding_2.webp',
                     title: 'Know what expires, at a glance',
                     subtitle: 'Add items as you unpack. EatSoon sorts them by urgency so you always know what\u2019s next.',
-                    bullets: const [
+                    bullets: [
                       (Icons.add_circle_outline, 'Add groceries in seconds'),
                       (Icons.sort, 'Sorted by what expires first'),
-                      (Icons.notifications_outlined,
-                          'Reminded before it\u2019s too late'),
+                      (
+                        Icons.notifications_outlined,
+                        'Reminded before it\u2019s too late',
+                      ),
                     ],
                   ),
                   _Page(
                     image: 'assets/onboarding_3.webp',
                     title: 'Never miss a date',
-                    subtitle:
-                        'A gentle reminder before food expires, so you can plan a meal instead of tossing it.',
+                    subtitle: 'A gentle reminder before food expires, so you can plan a meal instead of tossing it.',
                     permissionCta: !_permissionAsked
                         ? TextButton(
                             onPressed: _askPermission,
@@ -114,6 +117,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             ],
                           ),
                   ),
+                  const ExperienceOnboardingPage(setup: false),
+                  const ExperienceOnboardingPage(setup: true),
                 ],
               ),
             ),
@@ -122,7 +127,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
-                  3,
+                  5,
                   (i) => Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     width: _page == i ? 24 : 8,
@@ -141,7 +146,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
               child: PrimaryButton(
-                label: _page == 2 ? 'Get started' : 'Continue',
+                label: _page == 4 ? 'Get started' : 'Continue',
                 onPressed: _next,
               ),
             ),
@@ -179,11 +184,7 @@ class _Page extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: Image.asset(
-                  image,
-                  height: 220,
-                  fit: BoxFit.cover,
-                ),
+                child: Image.asset(image, height: 220, fit: BoxFit.cover),
               ),
               const SizedBox(height: 28),
               Text(

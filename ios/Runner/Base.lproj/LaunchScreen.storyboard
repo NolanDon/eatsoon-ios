@@ -16,10 +16,10 @@
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" image="LaunchMark" translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ey4">
+                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" image="LaunchMark" translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ey4">
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="180" id="wm-1"/>
-                                    <constraint firstAttribute="height" constant="180" id="hm-1"/>
+                                    <constraint firstAttribute="width" constant="180" id="brand-width"/>
+                                    <constraint firstAttribute="height" constant="180" id="brand-height"/>
                                 </constraints>
                             </imageView>
                         </subviews>
@@ -36,6 +36,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="LaunchMark" width="512" height="512"/>
+        <image name="LaunchMark" width="180" height="180"/>
     </resources>
 </document>

@@ -86,6 +86,10 @@ void main() {
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
       expect(find.text('Never miss a date'), findsOneWidget);
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Get started'));
       await tester.pumpAndSettle();
       expect(done, isTrue);

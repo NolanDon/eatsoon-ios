@@ -1,3 +1,5 @@
+import 'experience/brand_motion.dart';
+
 import 'package:flutter/material.dart';
 import 'package:eatsoon/logic/expiry_logic.dart';
 
@@ -46,6 +48,13 @@ Color urgencyTint(Urgency u) {
 ThemeData eatSoonTheme() {
   const ink = EatSoonColors.ink;
   return ThemeData(
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.iOS: BrandPageTransitions(),
+        TargetPlatform.android: BrandPageTransitions(),
+      },
+    ),
+    fontFamily: "DM Sans",
     useMaterial3: true,
     scaffoldBackgroundColor: EatSoonColors.paper,
     colorScheme: const ColorScheme.light(
@@ -60,6 +69,7 @@ ThemeData eatSoonTheme() {
       elevation: 0,
       centerTitle: false,
       titleTextStyle: TextStyle(
+        fontFamily: "DM Sans",
         color: ink,
         fontSize: 28,
         fontWeight: FontWeight.w700,
@@ -69,33 +79,54 @@ ThemeData eatSoonTheme() {
     textTheme: const TextTheme(
       // Large title — one per screen max.
       headlineLarge: TextStyle(
+        fontFamily: "DM Sans",
         color: ink,
         fontSize: 28,
         fontWeight: FontWeight.w700,
         letterSpacing: -0.5,
       ),
       // Body.
-      bodyLarge: TextStyle(color: ink, fontSize: 17, height: 1.4),
-      bodyMedium: TextStyle(color: ink, fontSize: 15, height: 1.4),
+      bodyLarge: TextStyle(
+        fontFamily: "DM Sans",
+        color: ink,
+        fontSize: 17,
+        height: 1.4,
+      ),
+      bodyMedium: TextStyle(
+        fontFamily: "DM Sans",
+        color: ink,
+        fontSize: 15,
+        height: 1.4,
+      ),
       // Caption.
-      labelMedium: TextStyle(color: EatSoonColors.inkMuted, fontSize: 13),
+      labelMedium: TextStyle(
+        fontFamily: "DM Sans",
+        color: EatSoonColors.inkMuted,
+        fontSize: 13,
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: EatSoonColors.tomato,
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(56),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        textStyle: const TextStyle(
+          fontFamily: "DM Sans",
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
         ),
-        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
         elevation: 0,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: EatSoonColors.tomato,
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        textStyle: const TextStyle(
+          fontFamily: "DM Sans",
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
         minimumSize: const Size(44, 44),
       ),
     ),
@@ -126,7 +157,11 @@ ThemeData eatSoonTheme() {
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: ink,
-      contentTextStyle: const TextStyle(color: Colors.white, fontSize: 15),
+      contentTextStyle: const TextStyle(
+        fontFamily: "DM Sans",
+        color: Colors.white,
+        fontSize: 15,
+      ),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),

@@ -32,3 +32,19 @@ configured. Remote CI runs have not been manually triggered during this audit.
 Analysis, the existing Flutter tests, the iOS release build, and a signed
 App Store IPA export passed on October 4, 2026. The exported profile matches
 the app bundle ID and the available distribution identity.
+
+## Branding assets
+
+App icons retain their colored backgrounds and fill a square opaque canvas.
+Update `assets/branding/app-icon-source.png`, then run from this repository:
+
+```sh
+swift scripts/render-ios-brand-assets.swift
+```
+
+The renderer produces every declared iOS app-icon size and rounded 180pt splash
+artwork at 1x, 2x, and 3x, and saves the cleaned master back to the source PNG.
+Splash PNGs use a 40pt corner radius, scaled for each resolution, with transparent
+corners. App-icon sources and generated app icons remain square and opaque.
+The launch storyboard displays a static 180×180 image with no runtime attributes.
+Original app colors and the launch-screen backdrop are preserved.

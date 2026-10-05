@@ -1,3 +1,7 @@
+import 'experience/font_license.dart';
+import 'experience/experience_preferences.dart';
+import 'experience/brand_motion.dart';
+
 import 'package:eatsoon/config.dart';
 import 'package:eatsoon/screens/home_screen.dart';
 import 'package:eatsoon/screens/onboarding_screen.dart';
@@ -13,6 +17,8 @@ import 'package:timezone/data/latest_all.dart' as tzdata;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerBrandFontLicense();
+  await ExperiencePreferences.initialize();
   tzdata.initializeTimeZones();
 
   final prefs = await SharedPreferences.getInstance();
@@ -42,6 +48,7 @@ class EatSoonApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
+      builder: experienceAppBuilder,
       title: AppConfig.appName,
       theme: eatSoonTheme(),
       debugShowCheckedModeBanner: false,

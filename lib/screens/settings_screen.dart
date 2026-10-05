@@ -1,3 +1,5 @@
+import '../experience/experience_widgets.dart';
+
 import 'package:eatsoon/config.dart';
 import 'package:eatsoon/screens/paywall_screen.dart';
 import 'package:eatsoon/state/providers.dart';
@@ -20,9 +22,8 @@ class SettingsScreen extends ConsumerWidget {
   void _openPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PaywallScreen(
-          onDone: (_) => Navigator.of(context).pop(),
-        ),
+        builder: (_) =>
+            PaywallScreen(onDone: (_) => Navigator.of(context).pop()),
       ),
     );
   }
@@ -38,6 +39,8 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          const ExperienceSettingsSection(),
+          const SizedBox(height: 24),
           Text('Reminders', style: textTheme.bodyLarge),
           const SizedBox(height: 8),
           Card(
@@ -62,8 +65,8 @@ class SettingsScreen extends ConsumerWidget {
                     selected: {leadDays},
                     onSelectionChanged: isPro
                         ? (s) => ref
-                            .read(itemsProvider.notifier)
-                            .setLeadDays(s.first)
+                              .read(itemsProvider.notifier)
+                              .setLeadDays(s.first)
                         : null,
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.resolveWith(
@@ -166,12 +169,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Center(
-            child: Text(
-              'EatSoon 1.0.0',
-              style: textTheme.labelMedium,
-            ),
-          ),
+          Center(child: Text('EatSoon 1.0.0', style: textTheme.labelMedium)),
         ],
       ),
     );

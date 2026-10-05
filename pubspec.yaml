@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.1.0+1003
 
 environment:
   sdk: ^3.13.5
@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  in_app_review: ^2.0.11
   flutter:
     sdk: flutter
 
@@ -67,6 +68,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/fonts/OFL.txt
+    - assets/onboarding_extended/
     - assets/onboarding_1.webp
     - assets/onboarding_2.webp
     - assets/onboarding_3.webp
@@ -98,3 +101,19 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  fonts:
+    - family: DM Sans
+      fonts:
+        - asset: assets/fonts/DMSans[opsz,wght].ttf
+          weight: 300
+        - asset: assets/fonts/DMSans[opsz,wght].ttf
+          weight: 400
+        - asset: assets/fonts/DMSans[opsz,wght].ttf
+          weight: 500
+        - asset: assets/fonts/DMSans[opsz,wght].ttf
+          weight: 600
+        - asset: assets/fonts/DMSans[opsz,wght].ttf
+          weight: 700
+        - asset: assets/fonts/DMSans[opsz,wght].ttf
+          weight: 800
