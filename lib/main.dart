@@ -1,3 +1,4 @@
+import 'experience/review_service.dart';
 import 'experience/font_license.dart';
 import 'experience/experience_preferences.dart';
 import 'experience/brand_motion.dart';
@@ -48,6 +49,7 @@ class EatSoonApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
+      navigatorObservers: [reviewNavigationObserver],
       builder: experienceAppBuilder,
       title: AppConfig.appName,
       theme: eatSoonTheme(),
@@ -94,10 +96,11 @@ class _StartupGateState extends ConsumerState<StartupGate> {
   Future<void> _finishOnboarding() async {
     await ref.read(foodRepositoryProvider).setOnboardingSeen();
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
+    final navigator = Navigator.of(context);
+    navigator.pushReplacement(
       MaterialPageRoute(
         builder: (_) => PaywallScreen(
-          onDone: (_) => Navigator.of(context).pushReplacement(
+          onDone: (_) => navigator.pushReplacement(
             MaterialPageRoute(builder: (_) => const HomeScreen()),
           ),
         ),

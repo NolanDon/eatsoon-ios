@@ -53,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
     );
     if (result == AddItemResult.usedUp && context.mounted) {
       _showUndoSnack(context, ref, 'Marked as used up');
-                    await ReviewService.recordMeaningfulAction();
+      await ReviewService.recordMeaningfulAction();
     }
   }
 
@@ -148,6 +148,7 @@ class HomeScreen extends ConsumerWidget {
                       .removeItem(mostUrgent.id);
                   if (context.mounted) {
                     _showUndoSnack(context, ref, 'Marked as used up');
+                    await ReviewService.recordMeaningfulAction();
                   }
                 },
                 onTap: () => _openEditSheet(context, ref, mostUrgent),
@@ -155,7 +156,9 @@ class HomeScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
                 child: Text(
-                  filter == 1 ? 'Eat within 3 days (${items.length})' : 'All items (${items.length})',
+                  filter == 1
+                      ? 'Eat within 3 days (${items.length})'
+                      : 'All items (${items.length})',
                   style: textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),

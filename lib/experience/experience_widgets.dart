@@ -1,3 +1,5 @@
+import 'feedback_form.dart';
+import 'feedback_service.dart';
 import 'review_service.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -220,6 +222,7 @@ class ExperienceSettingsSection extends StatelessWidget {
                     applicationName: appName,
                   ),
                 ),
+                const FeedbackForm(send: sendFeedback),
                 ListTile(
                   leading: const Icon(Icons.star_outline),
                   title: const Text('Write an App Store review'),

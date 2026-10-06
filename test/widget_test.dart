@@ -1,3 +1,4 @@
+import 'package:eatsoon/main.dart';
 import 'package:eatsoon/models/food_item.dart';
 import 'package:eatsoon/screens/home_screen.dart';
 import 'package:eatsoon/screens/onboarding_screen.dart';
@@ -70,6 +71,20 @@ FoodItem _item(String id, String name, int daysFromNow) {
 }
 
 void main() {
+  testWidgets('first-launch paywall closes after startup route is disposed',
+      (tester) async {
+    final prefs = await _mockPrefs();
+    await tester.pumpWidget(_testApp(const StartupGate(), prefs));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+    expect(find.byType(StartupGate), findsNothing);
+    expect(find.byType(PaywallScreen), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.byType(HomeScreen), findsOneWidget);
+  });
   group('Onboarding', () {
     testWidgets('tapping through all pages calls onDone', (tester) async {
       final prefs = await _mockPrefs();
