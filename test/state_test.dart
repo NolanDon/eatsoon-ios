@@ -11,8 +11,11 @@ class FakeNotificationService extends NotificationService {
   FakeNotificationService() : super(FlutterLocalNotificationsPlugin());
 
   @override
-  Future<void> scheduleForItem(FoodItem item, int leadDays,
-      {DateTime? now}) async {}
+  Future<void> scheduleForItem(
+    FoodItem item,
+    int leadDays, {
+    DateTime? now,
+  }) async {}
 
   @override
   Future<void> cancelForItem(String itemId) async {}
@@ -38,8 +41,7 @@ Future<ProviderContainer> _container() async {
   final container = ProviderContainer(
     overrides: [
       sharedPreferencesProvider.overrideWithValue(prefs),
-      notificationServiceProvider
-          .overrideWithValue(FakeNotificationService()),
+      notificationServiceProvider.overrideWithValue(FakeNotificationService()),
       revenueCatServiceProvider.overrideWithValue(FakeRevenueCatService()),
     ],
   );
@@ -86,15 +88,12 @@ void main() {
       await notifier.addItem(_item('u1'));
       await notifier.addItem(_item('u2'));
       await notifier.removeItem('u1');
-      expect(
-        c.read(itemsProvider).value!.map((i) => i.id),
-        ['u2'],
-      );
+      expect(c.read(itemsProvider).value!.map((i) => i.id), ['u2']);
       expect(await notifier.undoRemove(), isTrue);
-      expect(
-        c.read(itemsProvider).value!.map((i) => i.id).toSet(),
-        {'u1', 'u2'},
-      );
+      expect(c.read(itemsProvider).value!.map((i) => i.id).toSet(), {
+        'u1',
+        'u2',
+      });
       // Second undo is a no-op.
       expect(await notifier.undoRemove(), isFalse);
       c.dispose();
@@ -107,10 +106,7 @@ void main() {
       await notifier.addItem(_item('e1'));
       final updated = _item('e1').copyWith(name: 'Renamed');
       await notifier.updateItem(updated);
-      expect(
-        c.read(itemsProvider).value!.first.name,
-        'Renamed',
-      );
+      expect(c.read(itemsProvider).value!.first.name, 'Renamed');
       c.dispose();
     });
 

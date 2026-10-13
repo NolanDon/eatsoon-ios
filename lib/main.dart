@@ -4,9 +4,10 @@ import 'experience/experience_preferences.dart';
 import 'experience/brand_motion.dart';
 
 import 'package:eatsoon/config.dart';
-import 'package:eatsoon/screens/home_screen.dart';
+
+import 'niche/workspace_screen.dart';
+
 import 'package:eatsoon/screens/onboarding_screen.dart';
-import 'package:eatsoon/screens/paywall_screen.dart';
 import 'package:eatsoon/services/notification_service.dart';
 import 'package:eatsoon/services/revenuecat_service.dart';
 import 'package:eatsoon/state/providers.dart';
@@ -98,13 +99,7 @@ class _StartupGateState extends ConsumerState<StartupGate> {
     if (!mounted) return;
     final navigator = Navigator.of(context);
     navigator.pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => PaywallScreen(
-          onDone: (_) => navigator.pushReplacement(
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          ),
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => const NicheScreen()),
     );
   }
 
@@ -119,6 +114,6 @@ class _StartupGateState extends ConsumerState<StartupGate> {
     if (!_seenOnboarding) {
       return OnboardingScreen(onDone: _finishOnboarding);
     }
-    return const HomeScreen();
+    return const NicheScreen();
   }
 }

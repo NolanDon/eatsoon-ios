@@ -3,25 +3,19 @@ import 'package:eatsoon/models/food_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 FoodItem _item(String name, DateTime expiry) => FoodItem(
-      id: name,
-      name: name,
-      category: FoodCategory.produce,
-      expiryDate: expiry,
-    );
+  id: name,
+  name: name,
+  category: FoodCategory.produce,
+  expiryDate: expiry,
+);
 
 void main() {
   group('daysUntilExpiry', () {
     final now = DateTime(2026, 10, 4, 15, 30);
 
     test('compares calendar dates, ignoring time of day', () {
-      expect(
-        daysUntilExpiry(DateTime(2026, 10, 4, 23, 59), now),
-        0,
-      );
-      expect(
-        daysUntilExpiry(DateTime(2026, 10, 5, 0, 1), now),
-        1,
-      );
+      expect(daysUntilExpiry(DateTime(2026, 10, 4, 23, 59), now), 0);
+      expect(daysUntilExpiry(DateTime(2026, 10, 5, 0, 1), now), 1);
     });
 
     test('past dates are negative', () {
@@ -81,10 +75,12 @@ void main() {
         _item('urgent', DateTime(2026, 10, 5)),
       ];
       items.sort((a, b) => compareByUrgency(a, b, now: now));
-      expect(
-        items.map((i) => i.name).toList(),
-        ['expired', 'urgent', 'warning', 'fresh'],
-      );
+      expect(items.map((i) => i.name).toList(), [
+        'expired',
+        'urgent',
+        'warning',
+        'fresh',
+      ]);
     });
 
     test('ties break alphabetically (case-insensitive)', () {

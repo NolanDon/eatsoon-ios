@@ -1,9 +1,10 @@
-# EatSoon 1.1.0 (1003)
+# 2.0.0 beta — build 1012
 
-- Five-page onboarding with two new transparent illustrations matching the existing artwork.
-- Bundled DM Sans typography, app-specific motion and accessible Reduce Motion controls.
-- Persistent settings for pantry view, touch feedback and occasional StoreKit review requests.
-- Practical tips, review and subscription-management links, and bundled font licenses.
-- Updated edge-to-edge app icon and launch artwork with transparent rounded splash corners.
+- New primary workflow: Opened-pack portion ledger.
+- Record a pack, label date and after-opening instructions, decrement actual portions as used or wasted, undo mistakes, and decide what to replace.
+- Editable AI extraction from user-supplied notes, with consent and unknown fields left for manual entry.
+- Validated local records, copyable reports/backups and protected recovery.
+- Existing tools, records, Pro access and purchase restoration remain accessible.
+- Updated app-specific privacy links and data-use declarations.
 
-Static analysis and the full test suite pass. Signed archive and TestFlight upload results are recorded in the workspace release report.
+TestFlight validation candidate; no claim of App Store approval.

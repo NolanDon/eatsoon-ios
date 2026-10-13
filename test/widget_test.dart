@@ -1,3 +1,4 @@
+import 'package:eatsoon/niche/workspace_screen.dart';
 import 'package:eatsoon/main.dart';
 import 'package:eatsoon/models/food_item.dart';
 import 'package:eatsoon/screens/home_screen.dart';
@@ -19,8 +20,11 @@ class FakeNotificationService extends NotificationService {
   Future<bool> requestPermission() async => true;
 
   @override
-  Future<void> scheduleForItem(FoodItem item, int leadDays,
-      {DateTime? now}) async {}
+  Future<void> scheduleForItem(
+    FoodItem item,
+    int leadDays, {
+    DateTime? now,
+  }) async {}
 
   @override
   Future<void> cancelForItem(String itemId) async {}
@@ -29,8 +33,9 @@ class FakeNotificationService extends NotificationService {
   Future<void> rescheduleAll(List<FoodItem> items, int leadDays) async {}
 }
 
-Future<SharedPreferences> _mockPrefs(
-    [Map<String, Object> values = const {}]) async {
+Future<SharedPreferences> _mockPrefs([
+  Map<String, Object> values = const {},
+]) async {
   SharedPreferences.setMockInitialValues(values);
   return SharedPreferences.getInstance();
 }
@@ -39,8 +44,7 @@ Widget _testApp(Widget home, SharedPreferences prefs) {
   return ProviderScope(
     overrides: [
       sharedPreferencesProvider.overrideWithValue(prefs),
-      notificationServiceProvider
-          .overrideWithValue(FakeNotificationService()),
+      notificationServiceProvider.overrideWithValue(FakeNotificationService()),
       revenueCatServiceProvider.overrideWithValue(FakeRevenueCatService()),
     ],
     child: MaterialApp(home: home),
@@ -53,7 +57,8 @@ String _itemsJson(List<FoodItem> items) {
     if (i > 0) buf.write(',');
     final j = items[i].toJson();
     buf.write(
-        '{"id":"${j['id']}","name":"${j['name']}","category":"${j['category']}","expiryDate":"${j['expiryDate']}","createdAt":"${j['createdAt']}"}');
+      '{"id":"${j['id']}","name":"${j['name']}","category":"${j['category']}","expiryDate":"${j['expiryDate']}","createdAt":"${j['createdAt']}"}',
+    );
   }
   buf.write(']');
   return buf.toString();
@@ -71,33 +76,31 @@ FoodItem _item(String id, String name, int daysFromNow) {
 }
 
 void main() {
-  testWidgets('first-launch paywall closes after startup route is disposed',
-      (tester) async {
+  testWidgets('first launch opens the portion workspace after onboarding', (
+    tester,
+  ) async {
     final prefs = await _mockPrefs();
     await tester.pumpWidget(_testApp(const StartupGate(), prefs));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
     expect(find.byType(StartupGate), findsNothing);
-    expect(find.byType(PaywallScreen), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.close));
-    await tester.pumpAndSettle();
+    expect(find.byType(PaywallScreen), findsNothing);
     expect(tester.takeException(), isNull);
-    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(NicheScreen), findsOneWidget);
   });
   group('Onboarding', () {
     testWidgets('tapping through all pages calls onDone', (tester) async {
       final prefs = await _mockPrefs();
       var done = false;
-      await tester.pumpWidget(_testApp(
-        OnboardingScreen(onDone: () => done = true),
-        prefs,
-      ));
+      await tester.pumpWidget(
+        _testApp(OnboardingScreen(onDone: () => done = true), prefs),
+      );
 
       expect(find.text("Good food shouldn't go to waste"), findsOneWidget);
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
-      expect(find.text('Know what expires, at a glance'), findsOneWidget);
+      expect(find.text('Know what remains after opening'), findsOneWidget);
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
       expect(find.text('Never miss a date'), findsOneWidget);
@@ -113,10 +116,9 @@ void main() {
     testWidgets('Skip jumps straight to done', (tester) async {
       final prefs = await _mockPrefs();
       var done = false;
-      await tester.pumpWidget(_testApp(
-        OnboardingScreen(onDone: () => done = true),
-        prefs,
-      ));
+      await tester.pumpWidget(
+        _testApp(OnboardingScreen(onDone: () => done = true), prefs),
+      );
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
       expect(done, isTrue);
@@ -126,10 +128,7 @@ void main() {
   group('Paywall', () {
     testWidgets('shows both plans, yearly is best value', (tester) async {
       final prefs = await _mockPrefs();
-      await tester.pumpWidget(_testApp(
-        PaywallScreen(onDone: (_) {}),
-        prefs,
-      ));
+      await tester.pumpWidget(_testApp(PaywallScreen(onDone: (_) {}), prefs));
       await tester.pumpAndSettle();
 
       expect(find.text('EatSoon Pro'), findsOneWidget);
@@ -143,10 +142,9 @@ void main() {
     testWidgets('selecting monthly then purchasing completes', (tester) async {
       final prefs = await _mockPrefs();
       var purchased = false;
-      await tester.pumpWidget(_testApp(
-        PaywallScreen(onDone: (p) => purchased = p),
-        prefs,
-      ));
+      await tester.pumpWidget(
+        _testApp(PaywallScreen(onDone: (p) => purchased = p), prefs),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Monthly'));
@@ -160,10 +158,9 @@ void main() {
     testWidgets('close button dismisses without purchase', (tester) async {
       final prefs = await _mockPrefs();
       var calledWith = true;
-      await tester.pumpWidget(_testApp(
-        PaywallScreen(onDone: (p) => calledWith = p),
-        prefs,
-      ));
+      await tester.pumpWidget(
+        _testApp(PaywallScreen(onDone: (p) => calledWith = p), prefs),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.close));
@@ -200,8 +197,9 @@ void main() {
       expect(find.text('7 days left'), findsNWidgets(2));
     });
 
-    testWidgets('hero shows most urgent item with urgency labels',
-        (tester) async {
+    testWidgets('hero shows most urgent item with urgency labels', (
+      tester,
+    ) async {
       final items = [
         _item('a', 'Yogurt', 10),
         _item('b', 'Chicken', 1),

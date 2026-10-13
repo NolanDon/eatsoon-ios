@@ -71,11 +71,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   const _Page(
                     image: 'assets/onboarding_1.webp',
                     title: "Good food shouldn't go to waste",
-                    subtitle: 'Too much of what we buy ends up in the trash. EatSoon makes sure it doesn\u2019t.',
+                    subtitle: 'Track opened packs, record portions used or wasted, and keep a replacement list.',
                   ),
                   const _Page(
                     image: 'assets/onboarding_2.webp',
-                    title: 'Know what expires, at a glance',
+                    title: 'Know what remains after opening',
                     subtitle: 'Add items as you unpack. EatSoon sorts them by urgency so you always know what\u2019s next.',
                     bullets: [
                       (Icons.add_circle_outline, 'Add groceries in seconds'),

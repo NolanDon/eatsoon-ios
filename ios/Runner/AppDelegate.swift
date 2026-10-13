@@ -1,10 +1,14 @@
 import Flutter
 import UIKit
 import MessageUI
+import DeviceCheck
+import CryptoKit
+import AVFoundation
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private var feedbackResult: FlutterResult?
+  private let speech = AVSpeechSynthesizer()
 
   override func application(
     _ application: UIApplication,
@@ -16,6 +20,7 @@ import MessageUI
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     registerFeedbackChannel(engineBridge.pluginRegistry)
+    registerCompanionChannel(engineBridge.pluginRegistry)
   }
 }
 
@@ -72,5 +77,65 @@ extension AppDelegate: MFMailComposeViewControllerDelegate {
       }
     }
     controller.dismiss(animated: true) { callback?(outcome) }
+  }
+}
+
+// Secure AI proxy requests: the Gemini key is never present in the application.
+extension AppDelegate {
+  func registerCompanionChannel(_ registry: FlutterPluginRegistry) {
+    guard let registrar = registry.registrar(forPlugin: "BoxillCompanion") else { return }
+    let channel = FlutterMethodChannel(name: "com.boxill/companion", binaryMessenger: registrar.messenger())
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self = self else { return }
+      let args = call.arguments as? [String: Any] ?? [:]
+      switch call.method {
+      case "attestKey":
+        let service = DCAppAttestService.shared
+        guard service.isSupported else { result(nil); return }
+        if let key = UserDefaults.standard.string(forKey: "boxill.appAttest.key") {
+          result(key); return
+        }
+        service.generateKey { key, error in DispatchQueue.main.async {
+          if let key = key { UserDefaults.standard.set(key, forKey: "boxill.appAttest.key"); result(key) }
+          else { result(FlutterError(code: "attestation", message: error?.localizedDescription, details: nil)) }
+        }}
+      case "forgetAttestKey":
+        UserDefaults.standard.removeObject(forKey: "boxill.appAttest.key")
+        result(nil)
+      case "attest", "assert":
+        guard let key = args["keyId"] as? String, let text = args["data"] as? String,
+          text.utf8.count < 3100000 else {
+          result(FlutterError(code: "arguments", message: "Invalid attestation data", details: nil)); return
+        }
+        let hash = Data(SHA256.hash(data: Data(text.utf8)))
+        let completion: (Data?, Error?) -> Void = { proof, error in DispatchQueue.main.async {
+          if let proof = proof { result(proof.base64EncodedString()) }
+          else {
+            if let e = error as NSError?, e.code == DCError.invalidKey.rawValue {
+              UserDefaults.standard.removeObject(forKey: "boxill.appAttest.key")
+            }
+            result(FlutterError(code: "attestation", message: error?.localizedDescription, details: nil))
+          }
+        }}
+        if call.method == "attest" { DCAppAttestService.shared.attestKey(key, clientDataHash: hash, completionHandler: completion) }
+        else { DCAppAttestService.shared.generateAssertion(key, clientDataHash: hash, completionHandler: completion) }
+      default: self.handleCompanionFeature(call, result: result)
+      }
+    }
+  }
+}
+
+extension AppDelegate {
+  func handleCompanionFeature(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    if call.method == "speak", let args = call.arguments as? [String: String], let text = args["text"], text.count <= 200 {
+      speech.stopSpeaking(at: .immediate)
+      let utterance = AVSpeechUtterance(string: text)
+      utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+      utterance.rate = 0.42
+      speech.speak(utterance)
+      result(nil)
+    } else if call.method == "stopSpeech" {
+      speech.stopSpeaking(at: .immediate); result(nil)
+    } else { result(FlutterMethodNotImplemented) }
   }
 }

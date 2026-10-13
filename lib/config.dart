@@ -14,6 +14,6 @@ class AppConfig {
   static const int defaultLeadDays = 2;
 
   // TODO: replace with real hosted pages before App Store submission.
-  static const String termsUrl = 'https://example.com/eatsoon/terms';
-  static const String privacyUrl = 'https://example.com/eatsoon/privacy';
+  static const String termsUrl = 'https://boxillapps.com/eatsoon/terms';
+  static const String privacyUrl = 'https://boxillapps.com/eatsoon/privacy';
 }

@@ -43,21 +43,23 @@ void main() {
     expect(eligible(requests: 3, lastDays: 365), isTrue);
     expect(eligible(requests: 10, lastDays: 364), isFalse);
   });
-  test('stopping-point checks do not invent meaningful actions or usage days', () async {
-    SharedPreferences.setMockInitialValues({});
-    await ExperiencePreferences.initialize();
-    await ReviewService.considerReview();
-    final store = ExperiencePreferences.instance.store!;
-    expect(store.getInt('experience.meaningfulActions'), isNull);
-    expect(store.getStringList('experience.meaningfulDates'), isNull);
-    await ReviewService.recordMeaningfulAction(request: false);
-    await ReviewService.recordMeaningfulAction(request: false);
-    expect(store.getInt('experience.meaningfulActions'), 2);
-    expect(store.getStringList('experience.meaningfulDates')!.length, 1);
-    await ReviewService.considerReview();
-    expect(store.getInt('experience.meaningfulActions'), 2);
-    expect(store.getStringList('experience.meaningfulDates')!.length, 1);
-    expect(store.getString('experience.reviewRequested'), isNull);
-  });
-
+  test(
+    'stopping-point checks do not invent meaningful actions or usage days',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      await ExperiencePreferences.initialize();
+      await ReviewService.considerReview();
+      final store = ExperiencePreferences.instance.store!;
+      expect(store.getInt('experience.meaningfulActions'), isNull);
+      expect(store.getStringList('experience.meaningfulDates'), isNull);
+      await ReviewService.recordMeaningfulAction(request: false);
+      await ReviewService.recordMeaningfulAction(request: false);
+      expect(store.getInt('experience.meaningfulActions'), 2);
+      expect(store.getStringList('experience.meaningfulDates')!.length, 1);
+      await ReviewService.considerReview();
+      expect(store.getInt('experience.meaningfulActions'), 2);
+      expect(store.getStringList('experience.meaningfulDates')!.length, 1);
+      expect(store.getString('experience.reviewRequested'), isNull);
+    },
+  );
 }
