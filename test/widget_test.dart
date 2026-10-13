@@ -1,5 +1,5 @@
 import 'package:eatsoon/niche/workspace_screen.dart';
-import 'package:eatsoon/main.dart';
+import 'legacy_app_harness.dart';
 import 'package:eatsoon/models/food_item.dart';
 import 'package:eatsoon/screens/home_screen.dart';
 import 'package:eatsoon/screens/onboarding_screen.dart';

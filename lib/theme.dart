@@ -54,7 +54,7 @@ ThemeData eatSoonTheme() {
         TargetPlatform.android: BrandPageTransitions(),
       },
     ),
-    fontFamily: "DM Sans",
+    fontFamily: "Mada",
     useMaterial3: true,
     scaffoldBackgroundColor: EatSoonColors.paper,
     colorScheme: const ColorScheme.light(
@@ -69,7 +69,7 @@ ThemeData eatSoonTheme() {
       elevation: 0,
       centerTitle: false,
       titleTextStyle: TextStyle(
-        fontFamily: "DM Sans",
+        fontFamily: "Mada",
         color: ink,
         fontSize: 28,
         fontWeight: FontWeight.w700,
@@ -79,7 +79,7 @@ ThemeData eatSoonTheme() {
     textTheme: const TextTheme(
       // Large title — one per screen max.
       headlineLarge: TextStyle(
-        fontFamily: "DM Sans",
+        fontFamily: "Mada",
         color: ink,
         fontSize: 28,
         fontWeight: FontWeight.w700,
@@ -87,20 +87,20 @@ ThemeData eatSoonTheme() {
       ),
       // Body.
       bodyLarge: TextStyle(
-        fontFamily: "DM Sans",
+        fontFamily: "Mada",
         color: ink,
         fontSize: 17,
         height: 1.4,
       ),
       bodyMedium: TextStyle(
-        fontFamily: "DM Sans",
+        fontFamily: "Mada",
         color: ink,
         fontSize: 15,
         height: 1.4,
       ),
       // Caption.
       labelMedium: TextStyle(
-        fontFamily: "DM Sans",
+        fontFamily: "Mada",
         color: EatSoonColors.inkMuted,
         fontSize: 13,
       ),
@@ -112,7 +112,7 @@ ThemeData eatSoonTheme() {
         minimumSize: const Size.fromHeight(56),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         textStyle: const TextStyle(
-          fontFamily: "DM Sans",
+          fontFamily: "Mada",
           fontSize: 17,
           fontWeight: FontWeight.w600,
         ),
@@ -123,7 +123,7 @@ ThemeData eatSoonTheme() {
       style: TextButton.styleFrom(
         foregroundColor: EatSoonColors.tomato,
         textStyle: const TextStyle(
-          fontFamily: "DM Sans",
+          fontFamily: "Mada",
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
@@ -158,7 +158,7 @@ ThemeData eatSoonTheme() {
     snackBarTheme: SnackBarThemeData(
       backgroundColor: ink,
       contentTextStyle: const TextStyle(
-        fontFamily: "DM Sans",
+        fontFamily: "Mada",
         color: Colors.white,
         fontSize: 15,
       ),

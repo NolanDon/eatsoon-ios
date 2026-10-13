@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Photograph your food to create an editable EatSoon draft.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo to add to EatSoon.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>EatSoon sends a reminder before your food expires so you can use it in time.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -59,7 +65,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSUserNotificationsUsageDescription</key>
-	<string>EatSoon sends a reminder before your food expires so you can use it in time.</string>
 </dict>
 </plist>

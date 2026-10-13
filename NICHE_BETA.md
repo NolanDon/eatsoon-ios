@@ -1,13 +1,17 @@
-# EatSoon — Opened-pack portion ledger
+# EatSoon 3.0 beta
 
-Intended user: People who repeatedly use portions from opened packs and want an actual use/waste record and replacement list.
+Intended user: Households tracking food in a fridge, freezer or pantry.
 
-Record a pack, label date and after-opening instructions, decrement actual portions as used or wasted, undo mistakes, and decide what to replace.
+Review items extracted from a fridge photo, confirm label dates or suggested check intervals, then log used items.
 
-Walkthrough: Open a portion ledger → copy the package label instructions → use portions → record waste → undo an entry → add the pack to the replacement list.
+Walkthrough: Add several foods, edit a check date, mark an item used, and undo it in Used.
 
-A portion-level opened-pack workflow and explicit label provenance. KitchenPal and NoWaste already cover broad inventory and waste tracking; beta users must validate whether this narrower workflow is easier for their task.
+Onboarding supports camera, photo library and manual entry. Review and save a useful record before the optional paywall, then continue to the dashboard and setup guide. Cancel and denied permissions must leave manual entry available.
 
-New workspace records use a separate versioned key; previous records remain accessible through the original tools. New workspaces open after onboarding without an automatic paywall. Optional AI sends only source notes after explicit consent; no saved histories are automatically uploaded.
+Five transparent mascot poses accompany onboarding, guidance, processing, saved results and empty states. Motion respects Reduce Motion.
 
-This is a beta candidate. App Review approval and market demand are not guaranteed. Record intended-user beta feedback and the changes it actually prompts before resubmission. Ownership and account details are recorded in the App Review drafts.
+Suggested dates are estimates, not food safety guarantees.
+
+Photo analysis requires explicit consent and App Attest. Photos selected for analysis go to Boxill Apps and Google Gemini. Local records and backups stay on device unless the user explicitly shares them. Previous records remain separately accessible.
+
+Check edits, restart persistence, backup/restore, large text, cancellation and invalid or blurry photos. Report the attempted task, expected result and observed result. No independent human beta feedback has been claimed.

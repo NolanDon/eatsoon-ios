@@ -1,10 +1,9 @@
-# 2.0.0 beta — build 1012
+# EatSoon 3.0.0 (3013)
 
-- New primary workflow: Opened-pack portion ledger.
-- Record a pack, label date and after-opening instructions, decrement actual portions as used or wasted, undo mistakes, and decide what to replace.
-- Editable AI extraction from user-supplied notes, with consent and unknown fields left for manual entry.
-- Validated local records, copyable reports/backups and protected recovery.
-- Existing tools, records, Pro access and purchase restoration remain accessible.
-- Updated app-specific privacy links and data-use declarations.
+Review items extracted from a fridge photo, confirm label dates or suggested check intervals, then log used items.
 
-TestFlight validation candidate; no claim of App Store approval.
+Distinct dashboard, camera led setup, optional paywall after saved value, dashboard setup guide, licensed Mada typography, matched splash and icon colors, and five transparent mascot poses.
+
+Suggested dates are estimates, not food safety guarantees.
+
+This is an internal TestFlight build. App Store acceptance remains subject to Apple's review.

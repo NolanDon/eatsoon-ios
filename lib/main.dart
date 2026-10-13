@@ -1,17 +1,13 @@
+import 'v3/brand.dart';
+import 'v3/home.dart';
 import 'experience/review_service.dart';
 import 'experience/font_license.dart';
 import 'experience/experience_preferences.dart';
 import 'experience/brand_motion.dart';
 
-import 'package:eatsoon/config.dart';
-
-import 'niche/workspace_screen.dart';
-
-import 'package:eatsoon/screens/onboarding_screen.dart';
 import 'package:eatsoon/services/notification_service.dart';
 import 'package:eatsoon/services/revenuecat_service.dart';
 import 'package:eatsoon/state/providers.dart';
-import 'package:eatsoon/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,76 +40,19 @@ Future<void> main() async {
   );
 }
 
-class EatSoonApp extends ConsumerWidget {
+class EatSoonApp extends StatelessWidget {
   const EatSoonApp({super.key});
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
-      navigatorObservers: [reviewNavigationObserver],
-      builder: experienceAppBuilder,
-      title: AppConfig.appName,
-      theme: eatSoonTheme(),
-      debugShowCheckedModeBanner: false,
-      home: const StartupGate(),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+    navigatorObservers: [reviewNavigationObserver],
+    builder: experienceAppBuilder,
+    title: appName,
+    theme: v3Theme(),
+    debugShowCheckedModeBanner: false,
+    home: const V3Home(),
+  );
 }
 
-/// Routes: onboarding (once) -> paywall -> home. Later launches go
-/// straight home.
-class StartupGate extends ConsumerStatefulWidget {
+class StartupGate extends V3Home {
   const StartupGate({super.key});
-
-  @override
-  ConsumerState<StartupGate> createState() => _StartupGateState();
-}
-
-class _StartupGateState extends ConsumerState<StartupGate> {
-  bool _loading = true;
-  bool _seenOnboarding = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _boot();
-  }
-
-  Future<void> _boot() async {
-    final repo = ref.read(foodRepositoryProvider);
-    final seen = await repo.onboardingSeen();
-    // Refresh Pro status quietly in the background.
-    ref.read(revenueCatServiceProvider).isPro().then((pro) {
-      if (mounted) ref.read(isProProvider.notifier).state = pro;
-    });
-    if (mounted) {
-      setState(() {
-        _seenOnboarding = seen;
-        _loading = false;
-      });
-    }
-  }
-
-  Future<void> _finishOnboarding() async {
-    await ref.read(foodRepositoryProvider).setOnboardingSeen();
-    if (!mounted) return;
-    final navigator = Navigator.of(context);
-    navigator.pushReplacement(
-      MaterialPageRoute(builder: (_) => const NicheScreen()),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(
-        backgroundColor: EatSoonColors.paper,
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-    if (!_seenOnboarding) {
-      return OnboardingScreen(onDone: _finishOnboarding);
-    }
-    return const NicheScreen();
-  }
 }

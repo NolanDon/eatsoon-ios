@@ -1,0 +1,52 @@
+{
+  "app": "EatSoon",
+  "poses": [
+    {
+      "app": "eatsoon",
+      "hasAlpha": true,
+      "height": 1312,
+      "pose": "welcome",
+      "transparentFraction": 0.591869918699187,
+      "valid": true,
+      "width": 1199
+    },
+    {
+      "app": "eatsoon",
+      "hasAlpha": true,
+      "height": 1312,
+      "pose": "guide",
+      "transparentFraction": 0.5960569105691057,
+      "valid": true,
+      "width": 1199
+    },
+    {
+      "app": "eatsoon",
+      "hasAlpha": true,
+      "height": 1312,
+      "pose": "thinking",
+      "transparentFraction": 0.6019512195121951,
+      "valid": true,
+      "width": 1199
+    },
+    {
+      "app": "eatsoon",
+      "hasAlpha": true,
+      "height": 1312,
+      "pose": "success",
+      "transparentFraction": 0.5482113821138211,
+      "valid": true,
+      "width": 1199
+    },
+    {
+      "app": "eatsoon",
+      "hasAlpha": true,
+      "height": 1312,
+      "pose": "rest",
+      "transparentFraction": 0.5739430894308943,
+      "valid": true,
+      "width": 1199
+    }
+  ],
+  "generated_with": "OpenAI image generation",
+  "motion": "Finite Flutter entrance and pose transitions; Reduce Motion supported."
+}
