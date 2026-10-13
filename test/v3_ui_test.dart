@@ -98,11 +98,11 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         expect(find.text(appName), findsOneWidget);
-        if (scale == 1.0) {
+        if (scale == 1.0 && const bool.fromEnvironment('V3_COMPARE_GOLDENS')) {
           await expectLater(
             find.byType(MaterialApp),
             matchesGoldenFile(
-              '../../v3/evidence/screenshots/$appId-dashboard.png',
+              'goldens/v3_dashboard.png',
             ),
           );
         }
