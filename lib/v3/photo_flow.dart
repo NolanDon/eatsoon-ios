@@ -53,7 +53,25 @@ Future<List<Item>?> readPhoto(
               ),
               const SizedBox(height: 18),
               const Text(
-                'Send this photo to Boxill Apps and Google Gemini for an editable draft. Review the result before saving.',
+                'Send this photo to our server for an editable draft. Review it before saving.',
+              ),
+              TextButton(
+                onPressed: () => showDialog<void>(
+                  context: sheet,
+                  builder: (details) => AlertDialog(
+                    title: const Text('Where your photo goes'),
+                    content: const Text(
+                      'Your photo is sent securely to Boxill Apps, then to Google Gemini to create a draft. Your saved collection stays on your device. See Privacy in Settings for retention and provider details.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(details),
+                        child: const Text('Done'),
+                      ),
+                    ],
+                  ),
+                ),
+                child: const Text('Our server & Google Gemini'),
               ),
               const SizedBox(height: 22),
               MainAction(

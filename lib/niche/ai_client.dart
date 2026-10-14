@@ -159,6 +159,24 @@ class AiClient {
         headers.forEach(request.headers.set);
         request.add(utf8.encode(body));
         final response = await request.close();
+        if (response.statusCode != 200 && path == '/api/mobile/transfer') {
+          final bytes = <int>[];
+          await for (final chunk in response) {
+            bytes.addAll(chunk);
+            if (bytes.length > 4096) break;
+          }
+          String message =
+              'Sharing is unavailable. Check your connection and try again.';
+          try {
+            final value = jsonDecode(utf8.decode(bytes));
+            if (value is Map &&
+                value['error'] is String &&
+                (value['error'] as String).length <= 240) {
+              message = value['error'] as String;
+            }
+          } catch (_) {}
+          throw CompanionException(message);
+        }
         if (response.statusCode != 200) {
           throw CompanionException(switch (response.statusCode) {
             400 || 422 => 'We could not read this photo clearly. Try another photo or enter the details manually.',
@@ -172,7 +190,10 @@ class AiClient {
         final bytes = <int>[];
         await for (final chunk in response) {
           bytes.addAll(chunk);
-          if (bytes.length > 128000) throw const FormatException();
+          if (bytes.length >
+              (path == '/api/mobile/transfer' ? 900000 : 128000)) {
+            throw const FormatException();
+          }
         }
         final json = jsonDecode(utf8.decode(bytes));
         if (json is! Map<String, dynamic> || json['schemaVersion'] != 1) {

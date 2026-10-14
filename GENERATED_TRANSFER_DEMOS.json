@@ -1,0 +1,16 @@
+{
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "id": "eatsoon",
+      "prompt": "Use case: illustration-story. Asset: third onboarding slide demonstration for this app. The reference is the exact existing avatar and establishes identity, colors and tactile plush/felt 3D render style. Preserve the referenced mascot exactly, including face, outfit, appendages and colors. New scene: the mascot placing a carrot and milk carton into a mint food basket, with a small blank saved-food card. Center the complete mascot and props in one cohesive square composition, soft studio lighting, matching existing avatar and app icon materials. Genuine transparent background. No backdrop, no text, no letters, no checkmarks, no UI, no additional characters. Generous transparent margins, all props and mascot fully visible.",
+      "path": "/Users/user/.codex/generated_images/01a13259-5dce-7cc1-a47f-2d00a2af1390/exec-bfd8ef74-87fc-439d-a751-2ecffe3c9cfa.png"
+    },
+    {
+      "id": "eatsoon",
+      "asset": "notifications",
+      "prompt": "Use case: illustration-story. New notification onboarding illustration. Reference is the exact existing mascot, preserve identity, face, outfit, anatomy, colors, and tactile felt plush 3D style exactly. Show that mascot holding a small rounded cream alarm clock with a gentle felt golden bell hovering beside it, smiling reassuringly, illustrating an optional gentle reminder. One complete character and two clear simple objects, all fully visible in a centered square composition. Matching reference materials, soft studio lighting. Genuine transparent background, no backdrop, no text, no letters, no numbers, no UI. Generous transparent margins.",
+      "path": "/Users/user/.codex/generated_images/01a13259-5dce-7cc1-a47f-2d00a2af1390/exec-3a2b2961-fb89-466b-b3aa-314862b01783.png"
+    }
+  ]
+}

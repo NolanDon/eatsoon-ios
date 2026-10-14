@@ -57,6 +57,7 @@ int whole(Object? value, {int min = 0, int max = 1000000}) {
 }
 
 void validateItem(String kind, Item item) {
+  if (item['sharedReminders'] != null) need(item['sharedReminders'] is bool, 'Invalid reminder setting.');
   need(
     item['id'] is String && (item['id'] as String).isNotEmpty,
     'Missing identifier.',
@@ -407,6 +408,32 @@ class V3Store extends ChangeNotifier {
     _tail = result.catchError((Object _) {});
     return result;
   }
+
+  Future<void> mergeShared(
+    List<Item> incoming,
+    List<Item> sharedOutfits,
+    String receiptId,
+  ) => _change((items, outfits, plans) {
+    if (items.any((v) => v['sourceTransferId'] == receiptId)) return;
+    final mapping = <String, String>{};
+    final prefix = uniqueId();
+    for (var i = 0; i < incoming.length; i++) {
+      final source = incoming[i];
+      final old = source['id'] as String;
+      need(!mapping.containsKey(old), 'Duplicate shared record.');
+      final id = '$prefix-$i';
+      mapping[old] = id;
+      items.add({...source, 'id': id, 'sourceTransferId': receiptId});
+    }
+    for (var i = 0; i < sharedOutfits.length; i++) {
+      final source = sharedOutfits[i];
+      final ids = (source['ids'] as List).map((id) {
+        need(mapping.containsKey(id), 'Missing outfit piece.');
+        return mapping[id]!;
+      }).toList();
+      outfits.add({...source, 'id': '$prefix-outfit-$i', 'ids': ids});
+    }
+  });
 
   Future<void> addAll(List<Item> values) => _change((items, outfits, plans) {
     for (final value in values) {

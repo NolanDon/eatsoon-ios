@@ -44,7 +44,7 @@ void main() {
   test(
     'seven explanations are concise, specific and free of vague add prompts',
     () {
-      expect(introSteps.length, appKind=='clothing'?7:3);
+      expect(introSteps.length, appKind == 'clothing' ? 7 : needsReminderIntro ? 4 : 3);
       for (final step in introSteps) {
         expect(
           step.body
@@ -84,11 +84,13 @@ void main() {
       );
       for (var i = 0; i < introSteps.length; i++) {
         await t.pumpAndSettle();
-        expect(find.text('${i + 1} of ${introSteps.length}'), findsOneWidget);
+        expect(find.bySemanticsLabel('Step ${i + 1} of ${introSteps.length}'), findsOneWidget);
         expect(t.takeException(), isNull);
         await t.tap(
           find.text(
-            i == 0
+            needsReminderIntro && i == introSteps.length - 1
+                ? 'Skip'
+                : i == 0
                 ? 'Get started'
                 : i == introSteps.length - 1
                 ? 'Try it now'
@@ -207,7 +209,7 @@ void main() {
   final capture=Completer<dynamic>();
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('com.boxill/vision'),(call)async{if(call.method=='directory')return '';if(call.method=='capture')return capture.future;return null;});
   await t.pumpWidget(MaterialApp(theme:v3Theme(),home:const V3Home()));await t.pumpAndSettle();
-  await t.tap(find.text('Get started'));await t.pumpAndSettle();for(var i=0;i<(appKind=='clothing'?5:1);i++){await t.tap(find.text('Next'));await t.pumpAndSettle();}await t.tap(find.text('Try it now'));await t.pumpAndSettle();
+  await t.tap(find.text('Get started'));await t.pumpAndSettle();for(var i=0;i<(introSteps.length - 2);i++){await t.tap(find.text('Next'));await t.pumpAndSettle();}await t.tap(find.text(needsReminderIntro ? 'Skip' : 'Try it now'));await t.pumpAndSettle();
   await t.tap(find.text('Take a photo'));await t.pump(const Duration(milliseconds:700));
   final mascot=find.byWidgetPredicate((w)=>w is Mascot&&w.pose=='thinking');expect(mascot,findsOneWidget);
   final action=t.getRect(find.widgetWithText(FilledButton,'Take a photo'));expect(action.top-t.getRect(mascot).bottom,greaterThanOrEqualTo(32));expect(t.takeException(),isNull);

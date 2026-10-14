@@ -117,6 +117,19 @@ class ReviewService {
     }
   }
 
+  static Future<void> firstPhotoSuccess({required bool Function() canPrompt}) async {
+    if (_scheduled || kDebugMode || !canPrompt()) return;
+    final prefs = ExperiencePreferences.instance;
+    final store = prefs.store;
+    if (store == null || !prefs.flag('reviewRequests') || store.getBool('experience.firstPhotoReview') == true) return;
+    final last = DateTime.tryParse(store.getString('experience.reviewRequested') ?? '');
+    final requests = prefs.integer('reviewRequestCount', 0);
+    if (last != null && DateTime.now().difference(last).inDays < ReviewPolicy.cooldownDays(requests)) return;
+    _scheduled = true;
+    await store.setBool('experience.firstPhotoReview', true);
+    await _requestWhenSettled(prefs.integer('meaningfulActions', 0), requests, canPrompt);
+  }
+
   static Future<void> _requestWhenSettled(
     int actions,
     int requests,

@@ -12,7 +12,11 @@ typedef FeedbackSender = Future<FeedbackOutcome> Function({
 
 /// Support is always available, independently of the user's rating or review setting.
 class FeedbackForm extends StatefulWidget {
-  const FeedbackForm({super.key, required this.send, this.initiallyExpanded = false});
+  const FeedbackForm({
+    super.key,
+    required this.send,
+    this.initiallyExpanded = false,
+  });
   final FeedbackSender send;
   final bool initiallyExpanded;
 
@@ -26,6 +30,10 @@ class _FeedbackFormState extends State<FeedbackForm> {
   String _category = 'General feedback';
   bool _sending = false;
   bool _loading = true;
+  DateTime? _lastSent;
+  bool get _coolingDown =>
+      _lastSent != null &&
+      DateTime.now().difference(_lastSent!) < const Duration(hours: 24);
   String? _status;
   SharedPreferences? _prefs;
 
@@ -39,6 +47,8 @@ class _FeedbackFormState extends State<FeedbackForm> {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     _prefs = prefs;
+    final last = prefs.getInt('feedback.lastSent');
+    _lastSent = last == null ? null : DateTime.fromMillisecondsSinceEpoch(last);
     _message.text = prefs.getString('feedback.draft') ?? '';
     setState(() => _loading = false);
   }
@@ -50,7 +60,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
   }
 
   Future<void> _send() async {
-    if (_sending || !_formKey.currentState!.validate()) return;
+    if (_sending || _coolingDown || !_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
     final message = _message.text.trim();
     setState(() {
@@ -62,6 +72,11 @@ class _FeedbackFormState extends State<FeedbackForm> {
       final outcome = await widget.send(category: _category, message: message);
       if (!mounted) return;
       if (outcome == FeedbackOutcome.sent) {
+        _lastSent = DateTime.now();
+        await _prefs?.setInt(
+          'feedback.lastSent',
+          _lastSent!.millisecondsSinceEpoch,
+        );
         await _prefs?.remove('feedback.draft');
         _message.clear();
       }
@@ -90,7 +105,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
 
   @override
   Widget build(BuildContext context) => ExpansionTile(
-        initiallyExpanded: widget.initiallyExpanded,
+    initiallyExpanded: widget.initiallyExpanded,
     leading: const Icon(Icons.feedback_outlined),
     title: const Text('Send feedback'),
     subtitle: const Text('Ideas, questions, or something that needs fixing'),
@@ -102,10 +117,12 @@ class _FeedbackFormState extends State<FeedbackForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const Text('What can we help with?'),
+            const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               initialValue: _category,
               isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Topic'),
+              decoration: const InputDecoration(),
               items:
                   const [
                         'General feedback',
@@ -147,7 +164,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
             ),
             const SizedBox(height: 12),
             FilledButton.icon(
-              onPressed: _sending || _loading ? null : _send,
+              onPressed: _sending || _loading || _coolingDown ? null : _send,
               icon: _sending
                   ? const SizedBox(
                       width: 18,
@@ -157,6 +174,12 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   : const Icon(Icons.send_outlined),
               label: Text(_sending ? 'Sending…' : 'Send feedback'),
             ),
+            if (_coolingDown) ...[
+              const SizedBox(height: 12),
+              const Text(
+                'You can send feedback again tomorrow. For urgent help, email support@boxillapps.com.',
+              ),
+            ],
             if (_status != null) ...[
               const SizedBox(height: 12),
               Semantics(liveRegion: true, child: Text(_status!)),

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../experience/review_service.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -133,6 +135,18 @@ class _HomeState extends State<V3Home> {
     super.dispose();
   }
 
+  void considerPhotoReview() {
+    if (prefs?.getBool('v3.$appId.photoSuccess') != true) return;
+    ReviewService.firstPhotoSuccess(
+      canPrompt: () =>
+          mounted &&
+          !busy &&
+          !showingWizard &&
+          introduction == 3 &&
+          (ModalRoute.of(context)?.isCurrent ?? false),
+    );
+  }
+
   Future<void> create({String? source}) async {
     if (busy) return;
     if (!isPro && store!.items.length >= freeLimit) {
@@ -184,6 +198,7 @@ class _HomeState extends State<V3Home> {
         );
     if (chosen == null || !mounted) return;
     setState(() => busy = true);
+    final countBefore = store!.items.length;
     List<Item>? drafts;
     try {
       if (chosen == 'manual') {
@@ -219,7 +234,13 @@ class _HomeState extends State<V3Home> {
       }
     } finally {
       if (drafts != null) await cleanPhotos(drafts);
-      if (mounted) setState(() => busy = false);
+      if (drafts != null && store!.items.length > countBefore) {
+        await prefs?.setBool('v3.$appId.photoSuccess', true);
+      }
+      if (mounted) {
+        setState(() => busy = false);
+        considerPhotoReview();
+      }
     }
   }
 
@@ -278,6 +299,39 @@ class _HomeState extends State<V3Home> {
     }
   }
 
+  Future<void> importedShared(bool enableReminders) async {
+    if (mounted && introduction < 2 && store!.items.isNotEmpty) {
+      setState(() => introduction = 2);
+    }
+    if (enableReminders &&
+        prefs?.getBool('v3.$appId.reminders') != true &&
+        mounted) {
+      final allow = await showDialog<bool>(
+        context: context,
+        builder: (sheet) => AlertDialog(
+          title: const Text('Keep these reminders?'),
+          content: const Text(
+            'Your shared dates are saved. Allow notifications to receive the same reminders at 9 AM local time.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(sheet, false),
+              child: const Text('Skip'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(sheet, true),
+              child: const Text('Allow'),
+            ),
+          ],
+        ),
+      );
+      if (allow == true) await reminders();
+    }
+    for (final item in store!.items) {
+      await schedule(item);
+    }
+  }
+
   Future<void> reminders() async {
     final scheduled = store!.items
         .where(
@@ -305,7 +359,9 @@ class _HomeState extends State<V3Home> {
       }
       await prefs!.setBool('v3.$appId.reminders', true);
       for (final item in scheduled) {
-        await schedule(item);
+        final enabled = {...item, 'sharedReminders': true};
+        if (item['sharedReminders'] == false) await store!.update(enabled);
+        await schedule(enabled);
       }
       if (mounted) notice(context, 'Reminders enabled.');
     } catch (_) {
@@ -314,6 +370,10 @@ class _HomeState extends State<V3Home> {
   }
 
   Future<void> schedule(Item item) async {
+    if (item['sharedReminders'] == false) {
+      try { await vision.invokeMethod('clearReminder', {'id': item['id']}); } catch (_) {}
+      return;
+    }
     if (appKind == 'fridge' && item['used'] == true) {
       try {
         await vision.invokeMethod('clearReminder', {'id': item['id']});
@@ -381,7 +441,7 @@ class _HomeState extends State<V3Home> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Center(child: Mascot(pose: 'guide', height: 110)),
+              const Center(child: Mascot(pose: 'guide', height: 150)),
               const SizedBox(height: 12),
               Text(
                 'Your next step',
@@ -405,6 +465,7 @@ class _HomeState extends State<V3Home> {
       ),
     );
     if (mounted) setState(() => showingWizard = false);
+    considerPhotoReview();
     await prefs!.setBool('v3.$appId.wizard', true);
     if (done == true && mounted) {
       if (store!.items.isEmpty) {
@@ -661,7 +722,16 @@ class _HomeState extends State<V3Home> {
         body: SafeArea(
           child: Column(
             children: [
-              const MainTitle(appName),
+              MainTitle(
+                appName,
+                trailing: TextButton(
+                  onPressed: busy ? null : finish,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.grey.shade700,
+                  ),
+                  child: const Text('Skip'),
+                ),
+              ),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(24),
@@ -734,22 +804,19 @@ class _HomeState extends State<V3Home> {
                     ),
                   ),
                 ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.grey.shade700,
+              TextButton(
+                onPressed: busy
+                    ? null
+                    : () => showSharing(
+                        context,
+                        store!,
+                        directory,
+                        onImported: importedShared,
                       ),
-                      onPressed: busy ? null : finish,
-                      child: const Text(
-                        'Set up later',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey.shade700,
+                ),
+                child: const Text('Have a share code?'),
               ),
             ],
           ),
@@ -766,10 +833,15 @@ class _HomeState extends State<V3Home> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    tooltip: 'Share dashboard',
-                    onPressed: store!.items.isEmpty || busy
+                    tooltip: 'Share or receive',
+                    onPressed: busy
                         ? null
-                        : () => shareDashboard(context, shareKey),
+                        : () => showSharing(
+                            context,
+                            store!,
+                            directory,
+                            onImported: importedShared,
+                          ),
                     icon: const Icon(Icons.ios_share_outlined),
                   ),
                   IconButton(
@@ -780,11 +852,11 @@ class _HomeState extends State<V3Home> {
                 ],
               ),
             ),
-            if (busy || justSaved)
+            if (!showingWizard && (busy || justSaved))
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Mascot(pose: busy ? 'thinking' : 'success', height: 44),
+                  Mascot(pose: busy ? 'thinking' : 'success', height: 76),
                   const SizedBox(width: 8),
                   Text(busy ? 'Looking closely' : 'Saved'),
                 ],

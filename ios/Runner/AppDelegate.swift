@@ -1,3 +1,4 @@
+import CoreVideo
 import Flutter
 import UIKit
 import MessageUI
@@ -256,19 +257,23 @@ private enum V3Media {
         domain: "cutout", code: 3,
         userInfo: [NSLocalizedDescriptionKey: "Clothing cutouts need iOS 17 or later."])
     }
-    let request = VNGenerateForegroundInstanceMaskRequest()
-    #if targetEnvironment(simulator)
-    request.usesCPUOnly = true
-    #endif
-    let handler = VNImageRequestHandler(cgImage: cropped, options: [:])
-    try handler.perform([request])
-    guard let result = request.results?.first, !result.allInstances.isEmpty else {
-      throw NSError(
-        domain: "cutout", code: 4,
-        userInfo: [NSLocalizedDescriptionKey: "Lay one item on a plain background and retake."])
+    func maskedImage(cpuOnly: Bool) throws -> CVPixelBuffer {
+      let request = VNGenerateForegroundInstanceMaskRequest()
+      request.usesCPUOnly = cpuOnly
+      let handler = VNImageRequestHandler(cgImage: cropped, options: [:])
+      try handler.perform([request])
+      guard let observation = request.results?.first, !observation.allInstances.isEmpty else {
+        throw NSError(domain: "cutout", code: 4, userInfo: [NSLocalizedDescriptionKey: "Use a plain background and keep the whole subject visible."])
+      }
+      return try observation.generateMaskedImage(ofInstances: observation.allInstances, from: handler, croppedToInstancesExtent: true)
     }
-    let buffer = try result.generateMaskedImage(
-      ofInstances: result.allInstances, from: handler, croppedToInstancesExtent: true)
+    let buffer: CVPixelBuffer
+    #if targetEnvironment(simulator)
+    buffer = try maskedImage(cpuOnly: true)
+    #else
+    do { buffer = try maskedImage(cpuOnly: false) }
+    catch { buffer = try maskedImage(cpuOnly: true) }
+    #endif
     let ci = CIImage(cvPixelBuffer: buffer)
     guard let cg = CIContext().createCGImage(ci, from: ci.extent),
       let data = normalized(UIImage(cgImage: cg), maxEdge: 720).pngData()
@@ -548,6 +553,38 @@ extension AppDelegate {
           try FileManager.default.removeItem(at: url)
           result(true)
         } catch { result(false) }
+      case "transferPhoto":
+        guard let name=args["file"] as? String, let url=V3Media.file(name), let image=UIImage(contentsOfFile:url.path) else { result(FlutterError(code:"image",message:"A saved photo is missing.",details:nil));return }
+        DispatchQueue.global(qos:.userInitiated).async {
+          let normalized=V3Media.normalized(image,maxEdge:640)
+          let data=name.hasSuffix(".png") ? normalized.pngData() : normalized.jpegData(compressionQuality:0.75)
+          DispatchQueue.main.async {
+            guard let data=data,data.count<=3_000_000 else {result(FlutterError(code:"image",message:"Choose a smaller saved photo.",details:nil));return}
+            result(data.base64EncodedString())
+          }
+        }
+      case "transferQr":
+        guard let text=args["text"] as? String,text.count<=400,let filter=CIFilter(name:"CIQRCodeGenerator") else {result(nil);return}
+        filter.setValue(Data(text.utf8),forKey:"inputMessage");filter.setValue("M",forKey:"inputCorrectionLevel")
+        guard let output=filter.outputImage,let cg=CIContext().createCGImage(output.transformed(by:CGAffineTransform(scaleX:8,y:8)),from:output.extent.applying(CGAffineTransform(scaleX:8,y:8))) else {result(nil);return}
+        let image=UIImage(cgImage:cg),size=CGSize(width:CGFloat(cg.width+64),height:CGFloat(cg.height+64))
+        let format=UIGraphicsImageRendererFormat();format.scale=1;format.opaque=true
+        let rendered=UIGraphicsImageRenderer(size:size,format:format).image {c in UIColor.white.setFill();c.fill(CGRect(origin:.zero,size:size));c.cgContext.interpolationQuality = .none;image.draw(at:CGPoint(x:32,y:32))}
+        result(rendered.pngData()?.base64EncodedString())
+      case "readTransferQr":
+        guard let name=args["file"] as? String,let url=V3Media.file(name),let image=UIImage(contentsOfFile:url.path)?.cgImage else {result(nil);return}
+        DispatchQueue.global(qos:.userInitiated).async {
+          do { let request=VNDetectBarcodesRequest();request.symbologies=[.qr];try VNImageRequestHandler(cgImage:image,options:[:]).perform([request]);let text=request.results?.first?.payloadStringValue;DispatchQueue.main.async {result(text)} }
+          catch {DispatchQueue.main.async {result(FlutterError(code:"qr",message:"Keep the whole share QR in frame and try again.",details:nil))}}
+        }
+      case "shareTransfer":
+        guard let text=args["text"] as? String,text.count<=1800,let presenter=self.v3Presenter(registrar) else {result(false);return}
+        var items:[Any]=[text]
+        if let encoded=args["qr"] as? String,let bytes=Data(base64Encoded:encoded),bytes.count<=1_000_000,let image=UIImage(data:bytes){items.append(image)}
+        let activity=UIActivityViewController(activityItems:items,applicationActivities:nil)
+        activity.popoverPresentationController?.sourceView=presenter.view
+        activity.completionWithItemsHandler={_,completed,_,_ in result(completed)}
+        presenter.present(activity,animated:true)
       case "shareImage":
         guard let encoded = args["base64"] as? String, let data = Data(base64Encoded: encoded),
           data.count <= 10_000_000, let image = UIImage(data: data),

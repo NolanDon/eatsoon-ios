@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:eatsoon/v3/onboarding.dart' show photoInstruction;
+import 'package:eatsoon/v3/onboarding.dart' show photoInstruction, introSteps, needsReminderIntro;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -123,11 +123,11 @@ void main() {
     expect(find.text('Get started'), findsOneWidget);
     await tester.tap(find.text('Get started'));
     await tester.pumpAndSettle();
-    for (var i = 0; i < (appKind=='clothing'?5:1); i++) {
+    for (var i = 0; i < (introSteps.length - 2); i++) {
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
     }
-    await tester.tap(find.text('Try it now'));
+    await tester.tap(find.text(needsReminderIntro ? 'Skip' : 'Try it now'));
     await tester.pumpAndSettle();
     expect(find.text(photoInstruction), findsOneWidget);
     if (const bool.fromEnvironment('FIX_PHOTO_GOLDEN')) {
@@ -140,7 +140,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Enter manually'), findsNothing);
     expect(find.text('Choose a photo'), findsOneWidget);
-    expect(find.text('Set up later'), findsOneWidget);
+    expect(find.text('Skip'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets(

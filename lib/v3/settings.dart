@@ -259,7 +259,7 @@ class SupportScreen extends StatelessWidget {
       child: Column(
         children: [
           MainTitle(
-            'Feedback and support',
+            'Support',
             trailing: IconButton(
               tooltip: 'Close',
               onPressed: () => Navigator.pop(context),

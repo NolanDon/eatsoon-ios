@@ -148,7 +148,7 @@ class EmptyView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Mascot(pose: 'rest', height: 100),
+              const Mascot(pose: 'rest', height: 180),
               const SizedBox(height: 28),
               Text(
                 title,

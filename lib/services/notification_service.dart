@@ -13,7 +13,11 @@ class NotificationService {
 
   static Future<NotificationService> create() async {
     final plugin = FlutterLocalNotificationsPlugin();
-    const ios = DarwinInitializationSettings();
+    const ios = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
     const settings = InitializationSettings(iOS: ios);
     await plugin.initialize(settings: settings);
     return NotificationService(plugin);

@@ -1,4 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'photo_flow.dart' show vision;
 
 import 'brand.dart';
 import 'widgets.dart';
@@ -19,7 +24,7 @@ class IntroStep {
   const IntroStep(this.title, this.body, this.example, this.icon);
 }
 
-List<IntroStep> get introSteps => switch (appKind) {
+List<IntroStep> get _coreIntroSteps => switch (appKind) {
   'clothing' => const [
     IntroStep(
       'Your clothes, together',
@@ -46,8 +51,8 @@ List<IntroStep> get introSteps => switch (appKind) {
       Icons.photo_camera,
     ),
     IntroStep(
-      'Watch a complete outfit come together',
-      'Add a top and bottoms before generating an outfit. Color and occasion help choose pieces from your wardrobe.',
+      'Generate an outfit from your wardrobe',
+      'Add a top and bottoms, then tap Generate outfit. Wearloom combines your pieces for the occasion you choose.',
       'Everyday · smart · active',
       Icons.style,
     ),
@@ -59,7 +64,7 @@ List<IntroStep> get introSteps => switch (appKind) {
     ),
     IntroStep(
       'Try it with your clothes',
-      'Photograph a sweater or pair of pants in bright, even light. You can choose a photo or enter an item manually instead.',
+      'Photograph a whole garment in bright, even light, or choose an existing photo. Each picture becomes a piece in your wardrobe.',
       'Ready for your first piece',
       Icons.camera_alt_outlined,
     ),
@@ -247,6 +252,22 @@ List<IntroStep> get introSteps => switch (appKind) {
   _ => const [],
 };
 
+const needsReminderIntro =
+    appKind == 'plant' ||
+    appKind == 'fridge' ||
+    appKind == 'goal' ||
+    appKind == 'maintenance';
+List<IntroStep> get introSteps => [
+  ..._coreIntroSteps,
+  if (needsReminderIntro)
+    const IntroStep(
+      'Let a gentle reminder help',
+      'Allow notifications for the dates you save. You can skip this and still use every tool.',
+      '',
+      Icons.notifications_outlined,
+    ),
+];
+
 class FeatureOnboarding extends StatefulWidget {
   final VoidCallback onDone;
   const FeatureOnboarding({super.key, required this.onDone});
@@ -256,6 +277,28 @@ class FeatureOnboarding extends StatefulWidget {
 
 class _FeatureOnboardingState extends State<FeatureOnboarding> {
   int index = 0;
+  bool enabling = false;
+  Future<void> allowReminders() async {
+    if (enabling) return;
+    setState(() => enabling = true);
+    try {
+      final granted =
+          await vision.invokeMethod<bool>('reminderPermission') ?? false;
+      if (granted) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('v3.$appId.reminders', true);
+      }
+    } catch (_) {
+      if (mounted) {
+        notice(
+          context,
+          'Notifications are unavailable. You can enable them later in Settings.',
+        );
+      }
+    }
+    if (mounted) widget.onDone();
+  }
+
   double textHeight(
     BuildContext context,
     String text,
@@ -275,7 +318,8 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
     final steps = introSteps, step = steps[index];
     final titleStyle = Theme.of(context).textTheme.headlineLarge!
         .copyWith(fontSize: 28);
-    final bodyStyle = Theme.of(context).textTheme.bodyLarge!;
+    final bodyStyle = Theme.of(context).textTheme.bodyLarge!
+        .copyWith(color: Color.lerp(ink, paper, .07));
     final counterStyle = Theme.of(context).textTheme.labelMedium!;
     return Column(
       children: [
@@ -310,9 +354,28 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
                 ),
                 child: Column(
                   children: [
-                    Text(
-                      '${index + 1} of ${steps.length}',
-                      style: counterStyle,
+                    Semantics(
+                      label: 'Step ${index + 1} of ${steps.length}',
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          steps.length,
+                          (i) => AnimatedContainer(
+                            duration: MediaQuery.disableAnimationsOf(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 240),
+                            width: i == index ? 44 : 16,
+                            height: 3,
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            decoration: BoxDecoration(
+                              color: ink.withValues(
+                                alpha: i == index ? .9 : .22,
+                              ),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     FeatureDemo(
@@ -341,17 +404,34 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
             },
           ),
         ),
+        if (needsReminderIntro && index == steps.length - 1)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: enabling ? null : widget.onDone,
+                child: const Text('Skip'),
+              ),
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
           child: MainAction(
-            index == 0
+            needsReminderIntro && index == steps.length - 1
+                ? 'Allow notifications'
+                : index == 0
                 ? 'Get started'
                 : index == steps.length - 1
                 ? 'Try it now'
                 : 'Next',
-            () => index == steps.length - 1
-                ? widget.onDone()
-                : setState(() => index++),
+            enabling
+                ? null
+                : needsReminderIntro && index == steps.length - 1
+                ? allowReminders
+                : () => index == steps.length - 1
+                      ? widget.onDone()
+                      : setState(() => index++),
             icon: Icons.arrow_forward,
           ),
         ),
@@ -381,7 +461,15 @@ class FeatureDemo extends StatelessWidget {
         width: 300,
         height: 300,
         child: Center(
-          child: kind == 'clothing'
+          child: needsReminderIntro && index == 3
+              ? Image.asset(
+                  'assets/v3/demos/notifications.png',
+                  height: 275,
+                  fit: BoxFit.contain,
+                )
+              : index == 2
+              ? const _SaveDemo()
+              : kind == 'clothing'
               ? _ClothingDemo(index: index)
               : kind == 'goal' && index == 1
               ? const _GoalPhotoDemo()
@@ -389,6 +477,31 @@ class FeatureDemo extends StatelessWidget {
         ),
       ),
     ),
+  );
+}
+
+class _SaveDemo extends StatefulWidget {
+  const _SaveDemo();
+  @override
+  State<_SaveDemo> createState() => _SaveDemoState();
+}
+
+class _SaveDemoState extends State<_SaveDemo> {
+  bool saved = false;
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      Expanded(
+        child: Image.asset('assets/v3/demos/save.png', fit: BoxFit.contain),
+      ),
+      TextButton(
+        onPressed: () => setState(() => saved = !saved),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: Text(saved ? 'Saved' : 'Save', key: ValueKey(saved)),
+        ),
+      ),
+    ],
   );
 }
 
@@ -508,7 +621,7 @@ class _ClothingDemo extends StatelessWidget {
         : const Duration(milliseconds: 2400),
     builder: (context, t, child) {
       if (index == 0) {
-        return Image.asset('assets/v3/mascot/welcome.png', fit: BoxFit.contain);
+        return const _FloatingWardrobe();
       }
       if (index == 6) {
         return const _ClothingCaptureSequence();
@@ -730,6 +843,53 @@ class _GoalPhotoDemo extends StatelessWidget {
               child: ColoredBox(color: Colors.white.withValues(alpha: .65)),
             ),
         ],
+      );
+    },
+  );
+}
+
+class _FloatingWardrobe extends StatelessWidget {
+  const _FloatingWardrobe();
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 1),
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(seconds: 8),
+    builder: (context, t, _) {
+      const names = ['sweater', 'jeans', 'boots-guide', 'shirt', 'hat', 'bag'];
+      const positions = [
+        Rect.fromLTWH(8, 20, 105, 125),
+        Rect.fromLTWH(185, 6, 100, 155),
+        Rect.fromLTWH(10, 190, 85, 70),
+        Rect.fromLTWH(112, 182, 90, 105),
+        Rect.fromLTWH(209, 190, 88, 65),
+        Rect.fromLTWH(109, 34, 72, 95),
+      ];
+      return SizedBox(
+        width: 300,
+        height: 300,
+        child: Stack(
+          children: [
+            for (var i = 0; i < names.length; i++)
+              Positioned.fromRect(
+                rect: positions[i],
+                child: Transform.translate(
+                  offset: Offset(
+                    0,
+                    5 * math.sin(t * math.pi * 4 + i) * math.sin(t * math.pi),
+                  ),
+                  child: Transform.rotate(
+                    angle: (i.isEven ? -.08 : .09),
+                    child: Image.asset(
+                      'assets/v3/demos/${names[i]}.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       );
     },
   );
