@@ -1,15 +1,11 @@
-# 3.0.1 (3014)
+# EatSoon 3.2.0 (3020)
 
-Expanded onboarding and photo guidance, restored settings/profile/support, corrected wizard mascot and loading spacing.
+- Generated third-slide demo matches the existing mascot and icon style; line pagination and readable secondary subtitles.
+- Choose individual records or all records in Share. Wearloom also supports saved outfits, including their clothing pieces.
+- Share selected photos and details using a one-use code or QR. Codes expire in 24 hours. View claim status, revoke an unclaimed code or create a fresh one.
+- Receive shared photos, details and reminder dates during setup or from the dashboard. Existing local records stay saved.
+- Notification permission is requested only after an explanation and an explicit Allow action in apps with dated reminders.
+- Larger dashboard mascots, top-right Skip, concise photo consent with visible provider details, and a clearer Support form with a 24-hour resend cooldown.
+- The standard iOS rating API is used after a saved photo task without sentiment filtering. Apple decides whether to display it.
 
-EatSoon: explicit visible-fridge/package instructions, editable item/date review and restored near-term food filtering.
-
-# EatSoon 3.0.0 (3013)
-
-Review items extracted from a fridge photo, confirm label dates or suggested check intervals, then log used items.
-
-Distinct dashboard, camera led setup, optional paywall after saved value, dashboard setup guide, licensed Mada typography, matched splash and icon colors, and five transparent mascot poses.
-
-Suggested dates are estimates, not food safety guarantees.
-
-This is an internal TestFlight build. App Store acceptance remains subject to Apple's review.
+Privacy and terms describe optional temporary transfers. Native privacy declarations are updated; App Store Connect privacy labels must also be aligned before a public review submission. This build is an internal TestFlight update.
