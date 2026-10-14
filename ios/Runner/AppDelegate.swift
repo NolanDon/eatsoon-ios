@@ -257,23 +257,34 @@ private enum V3Media {
         domain: "cutout", code: 3,
         userInfo: [NSLocalizedDescriptionKey: "Clothing cutouts need iOS 17 or later."])
     }
-    func maskedImage(cpuOnly: Bool) throws -> CVPixelBuffer {
+    // Fresh requests and handlers prevent a failed ANE inference plan being reused.
+    // Retry once on a supported non-ANE device, keeping work off the UI thread.
+    var buffer: CVPixelBuffer?
+    for attempt in 0...1 {
       let request = VNGenerateForegroundInstanceMaskRequest()
-      request.usesCPUOnly = cpuOnly
       let handler = VNImageRequestHandler(cgImage: cropped, options: [:])
-      try handler.perform([request])
-      guard let observation = request.results?.first, !observation.allInstances.isEmpty else {
-        throw NSError(domain: "cutout", code: 4, userInfo: [NSLocalizedDescriptionKey: "Use a plain background and keep the whole subject visible."])
+      do {
+        if attempt == 1 {
+          let stages = try request.supportedComputeStageDevices
+          for (stage, devices) in stages {
+            if let cpu = devices.first(where: { if case .cpu = $0 { return true }; return false }) {
+              request.setComputeDevice(cpu, for: stage)
+            } else if let gpu = devices.first(where: { if case .gpu = $0 { return true }; return false }) {
+              request.setComputeDevice(gpu, for: stage)
+            } else { throw NSError(domain: "cutout", code: 6) }
+          }
+        }
+        try handler.perform([request])
+        guard let result = request.results?.first, !result.allInstances.isEmpty else {
+          throw NSError(domain: "cutout", code: 4)
+        }
+        buffer = try result.generateMaskedImage(ofInstances: result.allInstances, from: handler, croppedToInstancesExtent: true)
+        break
+      } catch {
+        if attempt == 1 { throw NSError(domain: "cutout", code: 7, userInfo: [NSLocalizedDescriptionKey: "Could not remove the background. Retake on a plain background with the whole subject visible."]) }
       }
-      return try observation.generateMaskedImage(ofInstances: observation.allInstances, from: handler, croppedToInstancesExtent: true)
     }
-    let buffer: CVPixelBuffer
-    #if targetEnvironment(simulator)
-    buffer = try maskedImage(cpuOnly: true)
-    #else
-    do { buffer = try maskedImage(cpuOnly: false) }
-    catch { buffer = try maskedImage(cpuOnly: true) }
-    #endif
+    guard let buffer = buffer else { throw NSError(domain: "cutout", code: 7) }
     let ci = CIImage(cvPixelBuffer: buffer)
     guard let cg = CIContext().createCGImage(ci, from: ci.extent),
       let data = normalized(UIImage(cgImage: cg), maxEdge: 720).pngData()
