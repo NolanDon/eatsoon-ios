@@ -71,11 +71,11 @@ ThemeData v3Theme() {
         ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        minimumSize: const Size(56, 58),
+        minimumSize: const Size(56, 62),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         textStyle: const TextStyle(
           fontFamily: brandFont,
-          fontSize: 16,
+          fontSize: 22,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -86,7 +86,7 @@ ThemeData v3Theme() {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         textStyle: const TextStyle(
           fontFamily: brandFont,
-          fontSize: 16,
+          fontSize: 22,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -96,7 +96,7 @@ ThemeData v3Theme() {
         minimumSize: const Size(48, 48),
         textStyle: const TextStyle(
           fontFamily: brandFont,
-          fontSize: 16,
+          fontSize: 22,
           fontWeight: FontWeight.w600,
         ),
       ),

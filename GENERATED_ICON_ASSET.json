@@ -1,0 +1,7 @@
+{
+  "generator": "built-in image_gen",
+  "prompt": "Use case: stylized-concept. Create one premium iOS app icon for EatSoon. Subject: a mint-green felt grocery basket containing a golden carrot and cream-colored egg. Same charming tactile wool felt / soft sculpted plush 3D art style as a handcrafted mascot, rounded substantial objects, visible fine fuzzy textile fibers, soft studio lighting, rich dimensional shading. Palette 13615A, DAA544, cream, on solid full-bleed F0F7F4 background. Center a single bold readable composition occupying 75 percent of the square. Full square opaque image, no rounded outer corners, no border, no typography, no letters, no faces, no mascot, no thin lines, no vector or flat SVG look. Beautiful polished mobile icon, readable at small sizes.",
+  "version": "3.1.1",
+  "asset": "assets/v3/brand/mark.png",
+  "packaging": "Opaque RGB resizes of generated artwork, no vector replacement."
+}

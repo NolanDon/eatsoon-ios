@@ -34,7 +34,18 @@ class MainAction extends StatelessWidget {
     width: double.infinity,
     child: FilledButton.icon(
       onPressed: onTap,
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(56, 62),
+        textStyle: Theme.of(context).textTheme.labelLarge
+            ?.copyWith(fontSize: 22),
+      ),
       icon: Icon(icon),
+      iconAlignment:
+          icon == Icons.arrow_forward ||
+              icon == Icons.arrow_right_alt ||
+              icon == Icons.east
+          ? IconAlignment.end
+          : IconAlignment.start,
       label: Text(label),
     ),
   );

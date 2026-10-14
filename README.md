@@ -2,7 +2,7 @@
 
 Review items extracted from a fridge photo, confirm label dates or suggested check intervals, then log used items.
 
-Version 3.0.0 (3013), Flutter for iPhone. Production entrypoint: `lib/main.dart`; dashboard and domain logic: `lib/v3`. Bundle identity remains `com.boxill.eatsoon`.
+Version 3.1.1 (3016), Flutter for iPhone. Production entrypoint: `lib/main.dart`; dashboard and domain logic: `lib/v3`. Bundle identity remains `com.boxill.eatsoon`.
 
 See [beta walkthrough](NICHE_BETA.md), [release notes](RELEASE_NOTES.md), and [review response draft](V3_REVIEW.md).
 

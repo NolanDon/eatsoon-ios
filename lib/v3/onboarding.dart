@@ -23,7 +23,7 @@ List<IntroStep> get introSteps => switch (appKind) {
   'clothing' => const [
     IntroStep(
       'Your clothes, together',
-      'Keep a visual wardrobe of pieces you already own. Start with a top and a pair of bottoms.',
+      'Photograph each clothing item to build your digital wardrobe. Wearloom suggests outfits from the pieces you own.',
       'Sweater + jeans',
       Icons.checkroom,
     ),
@@ -152,8 +152,8 @@ List<IntroStep> get introSteps => switch (appKind) {
       Icons.camera_alt_outlined,
     ),
     IntroStep(
-      "Photograph the item and its price",
-      "Use a clear product screenshot or a written savings goal. Review the target amount and currency before saving.",
+      "Photograph a written goal or product screenshot",
+      "Write your goal on paper and take a photo, or use a clear product screenshot with its price. Check the amount before saving.",
       "",
       Icons.camera_alt_outlined,
     ),
@@ -265,23 +265,30 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
         const MainTitle(appName),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Column(
               children: [
                 Text(
                   '${index + 1} of ${steps.length}',
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 8),
                 FeatureDemo(kind: appKind, index: index, step: step),
-                const SizedBox(height: 28),
+                const SizedBox(height: 12),
                 Text(
                   step.title,
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  style: Theme.of(context).textTheme.headlineLarge
+                      ?.copyWith(fontSize: 28),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
-                Text(step.body, textAlign: TextAlign.center),
+                if (appKind != 'drawing') ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    step.body,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
               ],
             ),
           ),
@@ -308,10 +315,11 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
                 onPressed: () => setState(() => index--),
                 child: const Text('Back'),
               ),
-            TextButton(
-              onPressed: widget.onManual,
-              child: const Text('Enter manually'),
-            ),
+            if (appKind != 'drawing')
+              TextButton(
+                onPressed: widget.onManual,
+                child: const Text('Enter manually'),
+              ),
           ],
         ),
         const SizedBox(height: 8),
@@ -332,10 +340,19 @@ class FeatureDemo extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 300,
-    child: kind == 'clothing'
-        ? _ClothingDemo(index: index)
-        : _CoreDemo(index: index),
+    height: (MediaQuery.sizeOf(context).height * .26).clamp(150.0, 220.0),
+    child: FittedBox(
+      fit: BoxFit.contain,
+      child: SizedBox(
+        width: 300,
+        height: 300,
+        child: kind == 'clothing'
+            ? _ClothingDemo(index: index)
+            : kind == 'goal' && index == 1
+            ? const _GoalPhotoDemo()
+            : _CoreDemo(index: index),
+      ),
+    ),
   );
 }
 
@@ -454,6 +471,12 @@ class _ClothingDemo extends StatelessWidget {
         ? Duration.zero
         : const Duration(milliseconds: 2400),
     builder: (context, t, child) {
+      if (index == 0) {
+        return Image.asset('assets/v3/mascot/welcome.png', fit: BoxFit.contain);
+      }
+      if (index == 6) {
+        return const _ClothingCaptureSequence();
+      }
       final outfit = index == 4 || index == 5;
       if (outfit) {
         return SizedBox(
@@ -521,13 +544,156 @@ class _ClothingDemo extends StatelessWidget {
           ),
         );
       }
-      return Image.asset(
-        'assets/v3/demos/${index == 3
-            ? 'boots-guide'
-            : index == 2
-            ? 'jeans'
-            : 'sweater'}.png',
-        fit: BoxFit.contain,
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.asset(
+            'assets/v3/demos/${index == 3
+                ? 'boots-guide'
+                : index == 2
+                ? 'jeans'
+                : 'sweater'}.png',
+            width: 245,
+            height: 245,
+            fit: BoxFit.contain,
+          ),
+          SizedBox(
+            width: 270,
+            height: 265,
+            child: CustomPaint(painter: _CameraFrame(t)),
+          ),
+          if (t > .85 && t < .98)
+            Positioned.fill(
+              child: ColoredBox(color: Colors.white.withValues(alpha: .45)),
+            ),
+        ],
+      );
+    },
+  );
+}
+
+class _ClothingCaptureSequence extends StatelessWidget {
+  const _ClothingCaptureSequence();
+  static const pieces = [
+    'sweater',
+    'jeans',
+    'boots-guide',
+    'shirt',
+    'hat',
+    'bag',
+  ];
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 6),
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(seconds: 18),
+    builder: (context, t, _) {
+      final index = t.floor().clamp(0, 5), phase = t >= 6 ? .6 : t - t.floor();
+      final arrival = (phase / .24).clamp(0.0, 1.0),
+          exit = ((phase - .8) / .2).clamp(0.0, 1.0);
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          Transform.translate(
+            offset: Offset(300 * (1 - Curves.easeOut.transform(arrival)), 0),
+            child: Opacity(
+              opacity: 1 - exit,
+              child: Image.asset(
+                'assets/v3/demos/${pieces[index]}.png',
+                width: 240,
+                height: 240,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 270,
+            height: 265,
+            child: CustomPaint(
+              painter: _CameraFrame(((phase - .25) / .45).clamp(0.0, 1.0)),
+            ),
+          ),
+          if (phase > .7 && phase < .78)
+            Positioned.fill(
+              child: ColoredBox(color: Colors.white.withValues(alpha: .65)),
+            ),
+        ],
+      );
+    },
+  );
+}
+
+class _GoalPhotoDemo extends StatelessWidget {
+  const _GoalPhotoDemo();
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 1),
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(seconds: 12),
+    builder: (context, t, _) {
+      const goal = 'Save 50k for house down payment';
+      final paperVisible = t >= .35;
+      final letters = (((t - .4) / .35).clamp(0.0, 1.0) * goal.length).floor();
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          if (!paperVisible)
+            Image.asset(
+              'assets/v3/demos/subject.png',
+              width: 250,
+              height: 250,
+              fit: BoxFit.contain,
+            ),
+          if (paperVisible)
+            Transform.rotate(
+              angle: -.04,
+              child: Container(
+                width: 238,
+                height: 225,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFCED),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ink.withValues(alpha: .15),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    goal.substring(0, letters),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: 'Goal Handwriting',
+                      fontSize: 32,
+                      color: ink,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          SizedBox(
+            width: 270,
+            height: 265,
+            child: CustomPaint(
+              painter: _CameraFrame(
+                paperVisible
+                    ? ((t - .75) / .15).clamp(0.0, 1.0)
+                    : (t / .3).clamp(0.0, 1.0),
+              ),
+            ),
+          ),
+          if ((t > .28 && t < .32) || (t > .9 && t < .94))
+            Positioned.fill(
+              child: ColoredBox(color: Colors.white.withValues(alpha: .65)),
+            ),
+        ],
       );
     },
   );
