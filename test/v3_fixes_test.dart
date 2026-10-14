@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -201,6 +202,18 @@ void main() {
     await t.pumpAndSettle();
     expect(t.takeException(), isNull);
   });
+ testWidgets('analysis mascot has clear space above the bottom action',(t)async{
+  await t.view.setLogicalSize(const Size(390,844));addTearDown(t.view.resetPhysicalSize);addTearDown(t.view.resetDevicePixelRatio);
+  final capture=Completer<dynamic>();
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('com.boxill/vision'),(call)async{if(call.method=='directory')return '';if(call.method=='capture')return capture.future;return null;});
+  await t.pumpWidget(MaterialApp(theme:v3Theme(),home:const V3Home()));await t.pumpAndSettle();
+  await t.tap(find.text('Get started'));await t.pumpAndSettle();for(var i=0;i<5;i++){await t.tap(find.text('Next'));await t.pumpAndSettle();}await t.tap(find.text('Try it now'));await t.pumpAndSettle();
+  await t.tap(find.text('Take a photo'));await t.pump(const Duration(milliseconds:700));
+  final mascot=find.byWidgetPredicate((w)=>w is Mascot&&w.pose=='thinking');expect(mascot,findsOneWidget);
+  final action=t.getRect(find.widgetWithText(FilledButton,'Take a photo'));expect(action.top-t.getRect(mascot).bottom,greaterThanOrEqualTo(32));expect(t.takeException(),isNull);
+  capture.complete(null);await t.pumpAndSettle();expect(t.takeException(),isNull);
+ });
+
 }
 
 extension FixViewSize on TestFlutterView {
