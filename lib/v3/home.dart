@@ -152,24 +152,32 @@ class _HomeState extends State<V3Home> {
               children: [
                 Text(
                   "Add food to your fridge",
-                  style: Theme.of(sheet).textTheme.headlineLarge,
+                  style: Theme.of(sheet).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 24),
                 MainAction(
                   'Camera',
                   () => Navigator.pop(sheet, 'camera'),
                   icon: Icons.camera_alt_outlined,
+                  fontSize: 18,
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    textStyle: Theme.of(sheet).textTheme.bodyLarge
+                        ?.copyWith(fontSize: 18),
+                  ),
                   onPressed: () => Navigator.pop(sheet, 'photos'),
                   icon: const Icon(Icons.photo_library_outlined),
                   label: const Text('Choose a photo'),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.pop(sheet, 'manual'),
-                  child: const Text('Enter manually'),
-                ),
+                if (appKind != 'clothing' &&
+                    appKind != 'drawing' &&
+                    introduction == 3)
+                  TextButton(
+                    onPressed: () => Navigator.pop(sheet, 'manual'),
+                    child: const Text('Enter manually'),
+                  ),
               ],
             ),
           ),
@@ -644,7 +652,6 @@ class _HomeState extends State<V3Home> {
         body: SafeArea(
           child: FeatureOnboarding(
             onDone: () => setState(() => introduction = 1),
-            onManual: () => create(source: 'manual'),
           ),
         ),
       );
@@ -730,18 +737,6 @@ class _HomeState extends State<V3Home> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.grey.shade700,
-                      ),
-                      onPressed: busy ? null : () => create(source: 'manual'),
-                      child: const Text(
-                        'Enter manually',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
                   Expanded(
                     child: TextButton(
                       style: TextButton.styleFrom(

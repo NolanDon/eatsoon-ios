@@ -8,27 +8,62 @@ import 'mascot.dart';
 class MainTitle extends StatelessWidget {
   final String text;
   final Widget? trailing;
-  const MainTitle(this.text, {super.key, this.trailing});
+  final VoidCallback? onBack;
+  const MainTitle(this.text, {super.key, this.trailing, this.onBack});
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(24, 14, 16, 18),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Text(text, style: Theme.of(context).textTheme.headlineLarge),
-        ),
-        ...(trailing == null ? <Widget>[] : [trailing!]),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final title = Theme.of(context).textTheme.headlineLarge!
+        .copyWith(fontSize: onBack == null ? 34 : 28);
+    final markSize = title.fontSize! * (title.height ?? 1.12);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 14, 16, 18),
+      child: Row(
+        children: [
+          if (onBack != null)
+            IconButton(
+              tooltip: 'Back',
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back),
+            ),
+          if (text == appName) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/v3/brand/mark.png',
+                width: markSize,
+                height: markSize,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Text(
+              text,
+              style: title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          ...(trailing == null ? <Widget>[] : [trailing!]),
+        ],
+      ),
+    );
+  }
 }
 
 class MainAction extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final IconData icon;
-  const MainAction(this.label, this.onTap, {super.key, this.icon = Icons.add});
+  final double fontSize;
+  const MainAction(
+    this.label,
+    this.onTap, {
+    super.key,
+    this.icon = Icons.add,
+    this.fontSize = 22,
+  });
   @override
   Widget build(BuildContext context) => SizedBox(
     width: double.infinity,
@@ -37,7 +72,7 @@ class MainAction extends StatelessWidget {
       style: FilledButton.styleFrom(
         minimumSize: const Size(56, 62),
         textStyle: Theme.of(context).textTheme.labelLarge
-            ?.copyWith(fontSize: 22),
+            ?.copyWith(fontSize: fontSize),
       ),
       icon: Icon(icon),
       iconAlignment:

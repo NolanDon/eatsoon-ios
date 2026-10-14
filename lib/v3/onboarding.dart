@@ -249,52 +249,100 @@ List<IntroStep> get introSteps => switch (appKind) {
 
 class FeatureOnboarding extends StatefulWidget {
   final VoidCallback onDone;
-  final VoidCallback? onManual;
-  const FeatureOnboarding({super.key, required this.onDone, this.onManual});
+  const FeatureOnboarding({super.key, required this.onDone});
   @override
   State<FeatureOnboarding> createState() => _FeatureOnboardingState();
 }
 
 class _FeatureOnboardingState extends State<FeatureOnboarding> {
   int index = 0;
+  double textHeight(
+    BuildContext context,
+    String text,
+    TextStyle style,
+    double width,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout(maxWidth: width);
+    return painter.height;
+  }
+
   @override
   Widget build(BuildContext context) {
     final steps = introSteps, step = steps[index];
+    final titleStyle = Theme.of(context).textTheme.headlineLarge!
+        .copyWith(fontSize: 28);
+    final bodyStyle = Theme.of(context).textTheme.bodyLarge!;
+    final counterStyle = Theme.of(context).textTheme.labelMedium!;
     return Column(
       children: [
-        const MainTitle(appName),
+        MainTitle(
+          appName,
+          onBack: index == 0 ? null : () => setState(() => index--),
+        ),
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Column(
-              children: [
-                Text(
-                  '${index + 1} of ${steps.length}',
-                  style: Theme.of(context).textTheme.labelMedium,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = (constraints.maxWidth - 48).clamp(
+                1.0,
+                double.infinity,
+              );
+              final wordsHeight =
+                  textHeight(context, step.title, titleStyle, width) +
+                  (appKind == 'drawing'
+                      ? 0
+                      : 12 + textHeight(context, step.body, bodyStyle, width)) +
+                  textHeight(
+                    context,
+                    '${index + 1} of ${steps.length}',
+                    counterStyle,
+                    width,
+                  );
+              final demoHeight = (constraints.maxHeight - wordsHeight - 68)
+                  .clamp(120.0, 340.0);
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
                 ),
-                const SizedBox(height: 8),
-                FeatureDemo(kind: appKind, index: index, step: step),
-                const SizedBox(height: 12),
-                Text(
-                  step.title,
-                  style: Theme.of(context).textTheme.headlineLarge
-                      ?.copyWith(fontSize: 28),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  children: [
+                    Text(
+                      '${index + 1} of ${steps.length}',
+                      style: counterStyle,
+                    ),
+                    const SizedBox(height: 16),
+                    FeatureDemo(
+                      kind: appKind,
+                      index: index,
+                      step: step,
+                      height: demoHeight,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      step.title,
+                      style: titleStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    if (appKind != 'drawing') ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        step.body,
+                        style: bodyStyle,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ],
                 ),
-                if (appKind != 'drawing') ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    step.body,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ],
-              ],
-            ),
+              );
+            },
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
           child: MainAction(
             index == 0
                 ? 'Get started'
@@ -307,22 +355,6 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
             icon: Icons.arrow_forward,
           ),
         ),
-        Wrap(
-          alignment: WrapAlignment.center,
-          children: [
-            if (index > 0)
-              TextButton(
-                onPressed: () => setState(() => index--),
-                child: const Text('Back'),
-              ),
-            if (appKind != 'drawing')
-              TextButton(
-                onPressed: widget.onManual,
-                child: const Text('Enter manually'),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
       ],
     );
   }
@@ -332,25 +364,29 @@ class FeatureDemo extends StatelessWidget {
   final String kind;
   final int index;
   final IntroStep step;
+  final double height;
   const FeatureDemo({
     super.key,
     required this.kind,
     required this.index,
     required this.step,
+    this.height = 300,
   });
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: (MediaQuery.sizeOf(context).height * .26).clamp(150.0, 220.0),
+    height: height,
     child: FittedBox(
       fit: BoxFit.contain,
       child: SizedBox(
         width: 300,
         height: 300,
-        child: kind == 'clothing'
-            ? _ClothingDemo(index: index)
-            : kind == 'goal' && index == 1
-            ? const _GoalPhotoDemo()
-            : _CoreDemo(index: index),
+        child: Center(
+          child: kind == 'clothing'
+              ? _ClothingDemo(index: index)
+              : kind == 'goal' && index == 1
+              ? const _GoalPhotoDemo()
+              : _CoreDemo(index: index),
+        ),
       ),
     ),
   );

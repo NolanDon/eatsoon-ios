@@ -95,9 +95,9 @@ ThemeData v3Theme() {
       style: TextButton.styleFrom(
         minimumSize: const Size(48, 48),
         textStyle: const TextStyle(
-          fontFamily: brandFont,
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontFamily: '.SF Pro Text',
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
         ),
       ),
     ),

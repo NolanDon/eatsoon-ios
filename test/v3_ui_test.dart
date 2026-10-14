@@ -10,7 +10,6 @@ import 'package:eatsoon/v3/home.dart';
 import 'package:eatsoon/v3/model.dart';
 import 'package:eatsoon/v3/dashboard.dart';
 import 'package:eatsoon/v3/actions.dart';
-import 'package:eatsoon/v3/editor.dart';
 
 import 'v3_fixtures.dart';
 
@@ -110,7 +109,7 @@ void main() {
       },
     );
   }
-  testWidgets('camera failure retains onboarding and manual fallback', (
+  testWidgets('camera failure retains photo retry and later setup', (
     tester,
   ) async {
     await tester.view.setLogicalSize(const Size(390, 844));
@@ -139,16 +138,9 @@ void main() {
     }
     await tester.tap(find.text('Take a photo'));
     await tester.pumpAndSettle();
-    expect(find.text('Enter manually'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-    await tester.pump(const Duration(seconds: 5));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Enter manually'));
-    await tester.pumpAndSettle();
-    expect(find.byType(ItemEditor), findsOneWidget);
-    await tester.tap(find.byTooltip('Cancel'));
-    await tester.pumpAndSettle();
-    expect(find.text('Take a photo'), findsOneWidget);
+    expect(find.text('Enter manually'), findsNothing);
+    expect(find.text('Choose a photo'), findsOneWidget);
+    expect(find.text('Set up later'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets(
@@ -185,15 +177,17 @@ void main() {
     },
   );
   testWidgets(
-    'manual setup saves a useful record before the paywall and survives restart',
+    'dashboard manual tools save useful records and survive restart',
     (tester) async {
       await tester.view.setLogicalSize(const Size(390, 844));
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({'v3.$appId.intro':true, 'v3.$appId.wizard':true});
       await tester.pumpWidget(
         MaterialApp(theme: v3Theme(), home: const V3Home()),
       );
+      await tester.pumpAndSettle();
+      tester.widget<Dashboard>(find.byType(Dashboard)).actions.add();
       await tester.pumpAndSettle();
       await tester.tap(find.text('Enter manually'));
       await tester.pumpAndSettle();
@@ -225,7 +219,7 @@ void main() {
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();
       expect(find.byType(Dashboard), findsOneWidget);
-      expect(find.text('Continue'), findsOneWidget);
+      expect(find.text('Continue'), findsNothing);
       expect(tester.takeException(), isNull);
       final prefs = await SharedPreferences.getInstance();
       expect(
