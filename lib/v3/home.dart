@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../config.dart';
@@ -17,6 +16,8 @@ import 'legacy.dart';
 import 'paywall.dart';
 import 'photo_flow.dart';
 import 'widgets.dart';
+import 'onboarding.dart';
+import 'settings.dart';
 
 class V3Home extends StatefulWidget {
   const V3Home({super.key});
@@ -32,6 +33,7 @@ class _HomeState extends State<V3Home> {
   int introduction = -1;
   String? error;
   bool justSaved = false;
+  bool showingWizard = false;
   final dashboardKey = GlobalKey<DashboardState>();
   int get freeLimit => switch (appKind) {
     'clothing' => 12,
@@ -357,6 +359,7 @@ class _HomeState extends State<V3Home> {
       'goal' => 'Choose a goal, then plan your next payday.',
       _ => '',
     };
+    setState(() => showingWizard = true);
     final done = await showModalBottomSheet<bool>(
       context: context,
       useSafeArea: true,
@@ -391,6 +394,7 @@ class _HomeState extends State<V3Home> {
         ),
       ),
     );
+    if (mounted) setState(() => showingWizard = false);
     await prefs!.setBool('v3.$appId.wizard', true);
     if (done == true && mounted) {
       if (store!.items.isEmpty) {
@@ -402,102 +406,40 @@ class _HomeState extends State<V3Home> {
   }
 
   Future<void> settings() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (sheet) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Settings', style: Theme.of(sheet).textTheme.headlineLarge),
-              const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(sheet);
-                  paywall();
-                },
-                child: const Text('Plans and restore'),
-              ),
-              OutlinedButton(
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: store!.export()));
-                  if (sheet.mounted) notice(sheet, 'Backup copied.');
-                },
-                child: const Text('Copy backup'),
-              ),
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(sheet);
-                  oldRecords();
-                },
-                child: const Text('Previous records'),
-              ),
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(sheet);
-                  restore();
-                },
-                child: const Text('Restore backup'),
-              ),
-              if (['fridge', 'plant', 'maintenance', 'goal'].contains(appKind))
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(sheet);
-                    reminders();
-                  },
-                  child: const Text('Enable date reminders'),
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AppSettings(
+          prefs: prefs!,
+          plans: paywall,
+          restore: restore,
+          oldRecords: oldRecords,
+          reminders: reminders,
+          copyBackup: () async {
+            await Clipboard.setData(ClipboardData(text: store!.export()));
+            if (mounted) notice(context, 'Backup copied.');
+          },
+          replay: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (page) => Scaffold(
+                body: SafeArea(
+                  child: FeatureOnboarding(onDone: () => Navigator.pop(page)),
                 ),
-              TextButton(
-                onPressed: () => launchUrl(Uri.parse(AppConfig.privacyUrl)),
-                child: const Text('Privacy'),
               ),
-              TextButton(
-                onPressed: () => launchUrl(Uri.parse(AppConfig.termsUrl)),
-                child: const Text('Terms'),
-              ),
-              TextButton(
-                onPressed: () =>
-                    showLicensePage(context: sheet, applicationName: appName),
-                child: const Text('Font licenses'),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
+    if (mounted) setState(() {});
   }
 
   Future<void> restore() async {
-    final controller = TextEditingController();
     final text = await showDialog<String>(
       context: context,
-      builder: (dialog) => AlertDialog(
-        title: const Text('Restore backup'),
-        content: TextField(
-          controller: controller,
-          minLines: 3,
-          maxLines: 6,
-          decoration: const InputDecoration(
-            hintText: 'Paste your version 3 backup',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialog),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialog, controller.text),
-            child: const Text('Review'),
-          ),
-        ],
-      ),
+      builder: (_) => const BackupRestoreDialog(),
     );
-    controller.dispose();
     if (text == null || !mounted) return;
     try {
       store!.decode(text);
@@ -695,6 +637,16 @@ class _HomeState extends State<V3Home> {
       update: update,
     );
     final dashboard = Dashboard(key: dashboardKey, actions: actions);
+    if (introduction == 0) {
+      return Scaffold(
+        body: SafeArea(
+          child: FeatureOnboarding(
+            onDone: () => setState(() => introduction = 1),
+            onManual: () => create(source: 'manual'),
+          ),
+        ),
+      );
+    }
     if (introduction < 2) {
       return Scaffold(
         body: SafeArea(
@@ -720,22 +672,34 @@ class _HomeState extends State<V3Home> {
                     Text(
                       introduction == 0
                           ? 'Make something useful before choosing a plan.'
-                          : 'Start with a photo or enter it yourself.',
+                          : photoInstruction,
                       textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
               if (busy || justSaved)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Mascot(pose: busy ? 'thinking' : 'success', height: 44),
-                    const SizedBox(width: 8),
-                    Text(busy ? 'Looking closely' : 'Saved'),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+                  child: Column(
+                    children: [
+                      Mascot(pose: busy ? 'thinking' : 'success', height: 56),
+                      const SizedBox(height: 12),
+                      Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          busy
+                              ? 'Analyzing your photo. Please keep the app open.'
+                              : 'Saved',
+                        ),
+                      ),
+                      if (busy) ...[
+                        const SizedBox(height: 16),
+                        const LinearProgressIndicator(),
+                      ],
+                    ],
+                  ),
                 ),
-              if (busy) const LinearProgressIndicator(),
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
                 child: MainAction(
@@ -783,7 +747,7 @@ class _HomeState extends State<V3Home> {
               trailing: IconButton(
                 tooltip: 'Settings',
                 onPressed: settings,
-                icon: const Icon(Icons.tune),
+                icon: const Icon(Icons.settings_outlined),
               ),
             ),
             if (busy || justSaved)
@@ -796,7 +760,9 @@ class _HomeState extends State<V3Home> {
                 ],
               ),
             if (busy) const LinearProgressIndicator(),
-            Expanded(child: dashboard),
+            Expanded(
+              child: Opacity(opacity: showingWizard ? 0 : 1, child: dashboard),
+            ),
             if (introduction == 2)
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),

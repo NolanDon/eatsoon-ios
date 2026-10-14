@@ -82,7 +82,7 @@ class AiClient {
       final body = jsonEncode({'schemaVersion': 1, ...data});
       if (utf8.encode(body).length > 3000000) {
         throw const CompanionException(
-          'This photo is too large. Please take a closer photo of the instructions.',
+          'This photo is too large. Choose a smaller photo.',
         );
       }
       final challenge = await _challenge(keyId, path);
@@ -161,11 +161,11 @@ class AiClient {
         final response = await request.close();
         if (response.statusCode != 200) {
           throw CompanionException(switch (response.statusCode) {
+            400 || 422 => 'We could not read this photo clearly. Try another photo or enter the details manually.',
             429 => 'AI usage is temporarily limited. Please try again later.',
             401 ||
             403 => 'Device verification was rejected. Please try again later.',
-            404 || 502 || 503 =>
-              'AI is not available yet. Your offline tools are ready to use.',
+            404 || 502 || 503 => 'Photo analysis is temporarily unavailable. Try again in a moment or enter the details manually.',
             _ => 'Could not complete the request. Please try again later.',
           });
         }

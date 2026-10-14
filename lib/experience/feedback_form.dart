@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'experience_content.dart';
+import '../v3/brand.dart' show appName;
 
 enum FeedbackOutcome { sent, saved, cancelled, unavailable, failed }
 
@@ -12,8 +12,9 @@ typedef FeedbackSender = Future<FeedbackOutcome> Function({
 
 /// Support is always available, independently of the user's rating or review setting.
 class FeedbackForm extends StatefulWidget {
-  const FeedbackForm({super.key, required this.send});
+  const FeedbackForm({super.key, required this.send, this.initiallyExpanded = false});
   final FeedbackSender send;
+  final bool initiallyExpanded;
 
   @override
   State<FeedbackForm> createState() => _FeedbackFormState();
@@ -89,6 +90,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
 
   @override
   Widget build(BuildContext context) => ExpansionTile(
+        initiallyExpanded: widget.initiallyExpanded,
     leading: const Icon(Icons.feedback_outlined),
     title: const Text('Send feedback'),
     subtitle: const Text('Ideas, questions, or something that needs fixing'),

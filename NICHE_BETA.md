@@ -15,3 +15,5 @@ Suggested dates are estimates, not food safety guarantees.
 Photo analysis requires explicit consent and App Attest. Photos selected for analysis go to Boxill Apps and Google Gemini. Local records and backups stay on device unless the user explicitly shares them. Previous records remain separately accessible.
 
 Check edits, restart persistence, backup/restore, large text, cancellation and invalid or blurry photos. Report the attempted task, expected result and observed result. No independent human beta feedback has been claimed.
+
+For this beta, review all seven feature slides via Settings → Tips and photo guide. Check the local profile, settings spacing and support draft behavior. Use the app-specific photo instructions before selecting a photo.

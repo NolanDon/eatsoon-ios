@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:eatsoon/v3/onboarding.dart' show photoInstruction;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -101,9 +102,7 @@ void main() {
         if (scale == 1.0 && const bool.fromEnvironment('V3_COMPARE_GOLDENS')) {
           await expectLater(
             find.byType(MaterialApp),
-            matchesGoldenFile(
-              'goldens/v3_dashboard.png',
-            ),
+            matchesGoldenFile('goldens/v3_dashboard.png'),
           );
         }
         await tester.pumpWidget(const SizedBox());
@@ -125,6 +124,19 @@ void main() {
     expect(find.text('Get started'), findsOneWidget);
     await tester.tap(find.text('Get started'));
     await tester.pumpAndSettle();
+    for (var i = 0; i < 5; i++) {
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.text('Try it now'));
+    await tester.pumpAndSettle();
+    expect(find.text(photoInstruction), findsOneWidget);
+    if (const bool.fromEnvironment('FIX_PHOTO_GOLDEN')) {
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/fix_photo_step.png'),
+      );
+    }
     await tester.tap(find.text('Take a photo'));
     await tester.pumpAndSettle();
     expect(find.text('Enter manually'), findsOneWidget);

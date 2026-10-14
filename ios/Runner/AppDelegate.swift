@@ -41,9 +41,9 @@ extension AppDelegate: MFMailComposeViewControllerDelegate {
         ["General feedback", "Report a problem", "Feature idea", "Question"].contains(category)
       else { result("failed"); return }
       guard MFMailComposeViewController.canSendMail() else { result("unavailable"); return }
-      guard let scene = UIApplication.shared.connectedScenes
-        .compactMap({ $0 as? UIWindowScene }).first(where: { $0.activationState == .foregroundActive }),
-        let root = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+      guard let root = registrar.viewController ?? UIApplication.shared.connectedScenes
+        .compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows })
+        .first(where: { $0.isKeyWindow })?.rootViewController
       else { result("failed"); return }
       var presenter = root
       while let presented = presenter.presentedViewController { presenter = presented }
@@ -55,7 +55,7 @@ extension AppDelegate: MFMailComposeViewControllerDelegate {
       let mail = MFMailComposeViewController()
       mail.mailComposeDelegate = self
       mail.setToRecipients(["support@boxillapps.com"])
-      mail.setSubject("\(name) — \(category)")
+      mail.setSubject("\(name) - \(category)")
       mail.setMessageBody("\(message)\n\n---\n\(name) \(version) (\(build))", isHTML: false)
       self.feedbackResult = result
       presenter.present(mail, animated: true)

@@ -82,6 +82,7 @@ Future<List<Item>?> readPhoto(
     if (response['accepted'] != true) {
       final text = switch (response['reason']) {
         'blurred' => 'This photo is too blurry. Try a clearer one.',
+        'bad_angle' => 'Place a matching pair of shoes upright, side by side and facing you, then retake the photo.',
         'multiple_garments' => 'Photograph one item at a time.',
         'unreadable' => 'The details are unclear. Try a closer photo.',
         _ => 'That photo does not match this feature.',
@@ -131,7 +132,7 @@ Future<List<Item>?> readPhoto(
         await vision.invokeMethod('removePhoto', {'file': photo['file']});
       } catch (_) {}
     }
-    if (context.mounted) notice(context, e.message ?? 'Photo unavailable.');
+    if (context.mounted) notice(context, photoError(e));
     return null;
   } catch (e) {
     if (photo != null) {
@@ -140,8 +141,25 @@ Future<List<Item>?> readPhoto(
       } catch (_) {}
     }
     if (context.mounted) {
-      notice(context, e is FormatException ? e.message : '$e');
+      notice(
+        context,
+        e is FormatException
+            ? e.message
+            : e is CompanionException
+            ? e.message
+            : 'Could not analyze this photo. Try again or enter the details manually.',
+      );
     }
     return null;
   }
 }
+
+String photoError(PlatformException error) => switch (error.code) {
+  'cutout' || 'crop' => 'Could not remove the background. Lay the item flat on a plain surface and try again, or enter it manually.',
+  'busy' => 'Finish the open camera or photo picker, then try again.',
+  'permission' =>
+    'Camera access is off. Allow it in iPhone Settings or choose a photo.',
+  'photo' || 'image' =>
+    'Choose a clear photo with the full subject visible and even lighting.',
+  _ => 'Camera unavailable. Choose a photo or enter the details manually.',
+};

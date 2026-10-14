@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'actions.dart';
+import '../experience/experience_preferences.dart';
 import 'brand.dart';
 import 'model.dart';
 import 'widgets.dart';
@@ -47,6 +48,16 @@ class DashboardState extends State<Dashboard> {
                   location == 'all' ||
                   location == 'used' ||
                   v['location'] == location,
+            )
+            .where(
+              (v) =>
+                  location == 'used' ||
+                  ExperiencePreferences.instance.integer('pantryView', 0) !=
+                      1 ||
+                  (dateOrNull(v['nextDate'])?.isBefore(
+                        DateTime.now().add(const Duration(days: 3)),
+                      ) ??
+                      false),
             )
             .toList()
           ..sort(

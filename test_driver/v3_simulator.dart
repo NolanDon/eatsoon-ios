@@ -21,21 +21,26 @@ Future<void> main() async {
       timeout: const Duration(minutes: 4),
     );
     final result = jsonDecode(raw) as Map;
-    await File('../v3/evidence/$app-simulator-native.json')
+    await File('../v3-fixes/evidence/$app-simulator-native.json')
         .writeAsString(const JsonEncoder.withIndent('  ').convert(result));
     if (result['ok'] != true) {
       throw StateError('Native fixture validation: ${result['error']}');
     }
     await Future<void>.delayed(const Duration(seconds: 2));
-    await File('../v3/evidence/screenshots/$app-ios-dashboard.png')
+    await File('../v3-fixes/evidence/screenshots/$app-ios-dashboard.png')
         .writeAsBytes(await driver.screenshot());
+    await driver.tap(find.byTooltip('Settings'));
+    await File('../v3-fixes/evidence/screenshots/$app-ios-settings.png').writeAsBytes(await driver.screenshot());
+    await driver.tap(find.byTooltip('Close'));
     await driver.requestData(jsonEncode({'action': 'onboarding'}));
     await Future<void>.delayed(const Duration(seconds: 2));
-    await File('../v3/evidence/screenshots/$app-ios-onboarding.png')
+    await File('../v3-fixes/evidence/screenshots/$app-ios-onboarding.png')
         .writeAsBytes(await driver.screenshot());
     await driver.tap(find.text('Get started'));
+    for (var i=0;i<5;i++) { await driver.tap(find.text('Next')); }
+    await driver.tap(find.text('Try it now'));
     await Future<void>.delayed(const Duration(seconds: 1));
-    await File('../v3/evidence/screenshots/$app-ios-photo-step.png')
+    await File('../v3-fixes/evidence/screenshots/$app-ios-photo-step.png')
         .writeAsBytes(await driver.screenshot());
     final camera = jsonDecode(
       await driver.requestData(
@@ -43,7 +48,7 @@ Future<void> main() async {
         timeout: const Duration(seconds: 30),
       ),
     );
-    await File('../v3/evidence/$app-simulator-camera.json')
+    await File('../v3-fixes/evidence/$app-simulator-camera.json')
         .writeAsString(jsonEncode(camera));
     if (camera['ok'] != true) throw StateError('Camera fallback failed');
     // ignore: avoid_print
