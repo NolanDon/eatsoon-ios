@@ -18,6 +18,7 @@ import 'photo_flow.dart';
 import 'widgets.dart';
 import 'onboarding.dart';
 import 'settings.dart';
+import 'sharing.dart';
 
 class V3Home extends StatefulWidget {
   const V3Home({super.key});
@@ -35,6 +36,7 @@ class _HomeState extends State<V3Home> {
   bool justSaved = false;
   bool showingWizard = false;
   final dashboardKey = GlobalKey<DashboardState>();
+  final shareKey = GlobalKey();
   int get freeLimit => switch (appKind) {
     'clothing' => 12,
     'fridge' => 20,
@@ -149,7 +151,7 @@ class _HomeState extends State<V3Home> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Add something new',
+                  "Add food to your fridge",
                   style: Theme.of(sheet).textTheme.headlineLarge,
                 ),
                 const SizedBox(height: 24),
@@ -725,13 +727,34 @@ class _HomeState extends State<V3Home> {
                     ),
                   ),
                 ),
-              TextButton(
-                onPressed: busy ? null : () => create(source: 'manual'),
-                child: const Text('Enter manually'),
-              ),
-              TextButton(
-                onPressed: busy ? null : finish,
-                child: const Text('Set up later'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey.shade700,
+                      ),
+                      onPressed: busy ? null : () => create(source: 'manual'),
+                      child: const Text(
+                        'Enter manually',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey.shade700,
+                      ),
+                      onPressed: busy ? null : finish,
+                      child: const Text(
+                        'Set up later',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -744,10 +767,22 @@ class _HomeState extends State<V3Home> {
           children: [
             MainTitle(
               appName,
-              trailing: IconButton(
-                tooltip: 'Settings',
-                onPressed: settings,
-                icon: const Icon(Icons.settings_outlined),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: 'Share dashboard',
+                    onPressed: store!.items.isEmpty || busy
+                        ? null
+                        : () => shareDashboard(context, shareKey),
+                    icon: const Icon(Icons.ios_share_outlined),
+                  ),
+                  IconButton(
+                    tooltip: 'Settings',
+                    onPressed: settings,
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+                ],
               ),
             ),
             if (busy || justSaved)
@@ -761,7 +796,13 @@ class _HomeState extends State<V3Home> {
               ),
             if (busy) const LinearProgressIndicator(),
             Expanded(
-              child: Opacity(opacity: showingWizard ? 0 : 1, child: dashboard),
+              child: Opacity(
+                opacity: showingWizard ? 0 : 1,
+                child: RepaintBoundary(
+                  key: shareKey,
+                  child: ColoredBox(color: paper, child: dashboard),
+                ),
+              ),
             ),
             if (introduction == 2)
               Padding(

@@ -1,0 +1,12 @@
+{
+  "generation": "built-in imagegen",
+  "core": {
+    "asset": "assets/v3/demos/core.png",
+    "subject": "small mint-green otter with a cream muzzle, dark bead eyes, a pale lemon apron and round paws",
+    "instruction": "Demonstrate the app core photo-to-result task, isolated on a transparent background with no text."
+  },
+  "camera_subject": {
+    "asset": "assets/v3/demos/subject.png",
+    "prompt": "Use case: stylized-concept. Asset: instructional camera subject for eatsoon onboarding. Show an open household refrigerator with milk, fresh carrots and broccoli, packages facing forward, bright and clear. Objects only. No character, no mascot, no human, no hand. Premium tactile felt/clay illustrative style. Single isolated composition, genuinely transparent background with crisp cutout edges. No backdrop, colored glow, fake checkerboard, text, numerals, UI, labels, watermark. Large readable objects at phone size, generous transparent margins."
+  }
+}

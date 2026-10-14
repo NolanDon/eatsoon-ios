@@ -124,7 +124,7 @@ void main() {
     expect(find.text('Get started'), findsOneWidget);
     await tester.tap(find.text('Get started'));
     await tester.pumpAndSettle();
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < (appKind=='clothing'?5:1); i++) {
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
     }
