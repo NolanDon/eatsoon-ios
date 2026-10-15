@@ -32,8 +32,6 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Send feedback').first);
-      await tester.pumpAndSettle();
       await tester.ensureVisible(find.byType(FilledButton));
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
@@ -82,8 +80,6 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Send feedback').first);
-      await tester.pumpAndSettle();
       await tester.enterText(
         find.byType(TextFormField),
         'Please fix this issue.',
@@ -128,8 +124,6 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Send feedback').first);
       await tester.pumpAndSettle();
       await tester.enterText(
         find.byType(TextFormField),

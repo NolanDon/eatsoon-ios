@@ -84,7 +84,7 @@ void main(){
  }
  testWidgets('support retains a 24-hour cooldown across reopening without losing a draft',(t)async{
    SharedPreferences.setMockInitialValues({'feedback.lastSent':DateTime.now().millisecondsSinceEpoch,'feedback.draft':'My saved feedback draft.'});var sends=0;
-   await t.pumpWidget(MaterialApp(theme:v3Theme(),home:Scaffold(body:ListView(children:[FeedbackForm(initiallyExpanded:true,send:({required category,required message})async{sends++;return FeedbackOutcome.sent;})]))));await t.pumpAndSettle();
+   await t.pumpWidget(MaterialApp(theme:v3Theme(),home:Scaffold(body:ListView(children:[FeedbackForm(send:({required category,required message})async{sends++;return FeedbackOutcome.sent;})]))));await t.pumpAndSettle();
    expect(t.widget<FilledButton>(find.byType(FilledButton)).onPressed,isNull);expect(find.textContaining('again tomorrow'),findsOneWidget);expect(find.text('My saved feedback draft.'),findsOneWidget);expect(sends,0);
  });
 }

@@ -27,7 +27,7 @@ class MainTitle extends StatelessWidget {
           : 28,
     );
     final markSize = title.fontSize! * (title.height ?? 1.12);
-    final heading = text == appName
+    final heading = text == appName && centered
         ? Row(
             mainAxisSize: MainAxisSize.min,
             children: [

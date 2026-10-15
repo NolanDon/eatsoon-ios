@@ -12,13 +12,8 @@ typedef FeedbackSender = Future<FeedbackOutcome> Function({
 
 /// Support is always available, independently of the user's rating or review setting.
 class FeedbackForm extends StatefulWidget {
-  const FeedbackForm({
-    super.key,
-    required this.send,
-    this.initiallyExpanded = false,
-  });
+  const FeedbackForm({super.key, required this.send});
   final FeedbackSender send;
-  final bool initiallyExpanded;
 
   @override
   State<FeedbackForm> createState() => _FeedbackFormState();
@@ -104,89 +99,80 @@ class _FeedbackFormState extends State<FeedbackForm> {
   }
 
   @override
-  Widget build(BuildContext context) => ExpansionTile(
-    initiallyExpanded: widget.initiallyExpanded,
-    leading: const Icon(Icons.feedback_outlined),
-    title: const Text('Send feedback'),
-    subtitle: const Text('Ideas, questions, or something that needs fixing'),
-    maintainState: true,
-    childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-    children: [
-      Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('What can we help with?'),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              initialValue: _category,
-              isExpanded: true,
-              decoration: const InputDecoration(),
-              items:
-                  const [
-                        'General feedback',
-                        'Report a problem',
-                        'Feature idea',
-                        'Question',
-                      ]
-                      .map(
-                        (topic) =>
-                            DropdownMenuItem(value: topic, child: Text(topic)),
-                      )
-                      .toList(),
-              onChanged: _sending
-                  ? null
-                  : (value) => setState(() => _category = value!),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _message,
-              enabled: !_sending && !_loading,
-              minLines: 4,
-              maxLines: 8,
-              maxLength: 4000,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Your feedback',
-                hintText: 'Tell us what worked, what didn’t, or what you’d like to see.',
-                alignLabelWithHint: true,
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) => (value?.trim().length ?? 0) < 10
-                  ? 'Please write at least 10 characters.'
-                  : null,
-              onChanged: (value) => _prefs?.setString('feedback.draft', value),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Sent to support@boxillapps.com. Please avoid sensitive personal information.',
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: _sending || _loading || _coolingDown ? null : _send,
-              icon: _sending
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.send_outlined),
-              label: Text(_sending ? 'Sending…' : 'Send feedback'),
-            ),
-            if (_coolingDown) ...[
-              const SizedBox(height: 12),
-              const Text(
-                'You can send feedback again tomorrow. For urgent help, email support@boxillapps.com.',
-              ),
-            ],
-            if (_status != null) ...[
-              const SizedBox(height: 12),
-              Semantics(liveRegion: true, child: Text(_status!)),
-            ],
-          ],
+  Widget build(BuildContext context) => Form(
+    key: _formKey,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('What can we help with?'),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: _category,
+          isExpanded: true,
+          decoration: const InputDecoration(),
+          items:
+              const [
+                    'General feedback',
+                    'Report a problem',
+                    'Feature idea',
+                    'Question',
+                  ]
+                  .map(
+                    (topic) =>
+                        DropdownMenuItem(value: topic, child: Text(topic)),
+                  )
+                  .toList(),
+          onChanged: _sending
+              ? null
+              : (value) => setState(() => _category = value!),
         ),
-      ),
-    ],
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _message,
+          enabled: !_sending && !_loading,
+          minLines: 4,
+          maxLines: 8,
+          maxLength: 4000,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(
+            labelText: 'Your feedback',
+            hintText:
+                'Tell us what worked, what didn’t, or what you’d like to see.',
+            alignLabelWithHint: true,
+            border: OutlineInputBorder(),
+          ),
+          validator: (value) => (value?.trim().length ?? 0) < 10
+              ? 'Please write at least 10 characters.'
+              : null,
+          onChanged: (value) => _prefs?.setString('feedback.draft', value),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'We’ll email your message to support. Please avoid sensitive personal information.',
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: _sending || _loading || _coolingDown ? null : _send,
+          icon: _sending
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.send_outlined),
+          label: Text(_sending ? 'Sending…' : 'Send feedback'),
+        ),
+        if (_coolingDown) ...[
+          const SizedBox(height: 12),
+          const Text(
+            'You can send feedback again tomorrow. For urgent help, use the copy support email button below.',
+          ),
+        ],
+        if (_status != null) ...[
+          const SizedBox(height: 12),
+          Semantics(liveRegion: true, child: Text(_status!)),
+        ],
+      ],
+    ),
   );
 }

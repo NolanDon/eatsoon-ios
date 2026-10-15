@@ -731,8 +731,10 @@ class _HomeState extends State<V3Home> {
                   onPressed: busy ? null : finish,
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.grey.shade700,
+                    minimumSize: const Size(0, 48),
+                    padding: EdgeInsets.zero,
                   ),
-                  child: const Text('Skip'),
+                  child: const Text('Skip', maxLines: 1, softWrap: false),
                 ),
               ),
               Expanded(

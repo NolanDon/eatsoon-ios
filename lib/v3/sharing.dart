@@ -32,20 +32,12 @@ Future<void> showSharing(
   );
 }
 
-Widget _shareTabLabel(String text, bool selected) => Row(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    if (selected) const Icon(Icons.check, size: 14),
-    if (selected) const SizedBox(width: 4),
-    Flexible(
-      child: Text(
-        text,
-        maxLines: 1,
-        softWrap: false,
-        overflow: TextOverflow.ellipsis,
-      ),
-    ),
-  ],
+Widget _shareTabLabel(String text, bool selected) => Text(
+  text,
+  maxLines: 1,
+  softWrap: false,
+  overflow: TextOverflow.ellipsis,
+  style: selected ? const TextStyle(fontWeight: FontWeight.w700) : null,
 );
 
 class SharingScreen extends StatefulWidget {
@@ -235,6 +227,7 @@ class _SharingScreenState extends State<SharingScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: SegmentedButton<int>(
+              showSelectedIcon: false,
               segments: [
                 ButtonSegment(
                   value: 0,

@@ -270,13 +270,8 @@ class SupportScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(24),
               children: [
-                const Text(
-                  'Ask a question, report a problem or suggest an improvement.',
-                ),
+                const FeedbackForm(send: sendFeedback),
                 const SizedBox(height: 20),
-                const FeedbackForm(send: sendFeedback, initiallyExpanded: true),
-                const SizedBox(height: 20),
-                const SelectableText('support@boxillapps.com'),
                 TextButton.icon(
                   onPressed: () async {
                     await Clipboard.setData(
