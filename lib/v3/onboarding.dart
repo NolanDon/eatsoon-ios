@@ -325,6 +325,7 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
       children: [
         MainTitle(
           appName,
+          centered: true,
           onBack: index == 0 ? null : () => setState(() => index--),
         ),
         Expanded(
@@ -489,16 +490,56 @@ class _SaveDemo extends StatefulWidget {
 class _SaveDemoState extends State<_SaveDemo> {
   bool saved = false;
   @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(const Duration(milliseconds: 900), () {
+      if (mounted) setState(() => saved = true);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) => Column(
     children: [
       Expanded(
         child: Image.asset('assets/v3/demos/save.png', fit: BoxFit.contain),
       ),
-      TextButton(
-        onPressed: () => setState(() => saved = !saved),
+      AnimatedContainer(
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 240),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: saved ? ink : paper,
+          border: Border.all(color: ink, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: Text(saved ? 'Saved' : 'Save', key: ValueKey(saved)),
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 280),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          ),
+          child: Row(
+            key: ValueKey(saved),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (saved) ...[
+                const Icon(Icons.check, size: 17, color: paper),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                saved ? 'Saved' : 'Save',
+                style: TextStyle(
+                  fontFamily: brandFont,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: saved ? paper : ink,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ],

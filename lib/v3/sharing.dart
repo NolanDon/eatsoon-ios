@@ -16,6 +16,7 @@ Future<void> showSharing(
   V3Store store,
   String directory, {
   required Future<void> Function(bool) onImported,
+  int initialTab = 0,
 }) async {
   final preferences = await SharedPreferences.getInstance();
   if (!context.mounted) return;
@@ -25,18 +26,37 @@ Future<void> showSharing(
       builder: (_) => SharingScreen(
         client: TransferClient(store, directory, preferences),
         onImported: onImported,
+        initialTab: initialTab,
       ),
     ),
   );
 }
 
+Widget _shareTabLabel(String text, bool selected) => Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    if (selected) const Icon(Icons.check, size: 14),
+    if (selected) const SizedBox(width: 4),
+    Flexible(
+      child: Text(
+        text,
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+  ],
+);
+
 class SharingScreen extends StatefulWidget {
   final TransferClient client;
   final Future<void> Function(bool) onImported;
+  final int initialTab;
   const SharingScreen({
     super.key,
     required this.client,
     required this.onImported,
+    this.initialTab = 0,
   });
   @override
   State<SharingScreen> createState() => _SharingScreenState();
@@ -49,6 +69,15 @@ class _SharingScreenState extends State<SharingScreen> {
   bool outfits = false, busy = false;
   String progress = '';
   TransferClient get client => widget.client;
+  bool get hasCompleteCode {
+    try {
+      normalizeShareCode(code.text);
+      return true;
+    } on FormatException {
+      return false;
+    }
+  }
+
   String get plural => outfits
       ? 'outfits'
       : switch (appKind) {
@@ -64,6 +93,12 @@ class _SharingScreenState extends State<SharingScreen> {
           _ => 'service records',
         };
   List<Item> get records => outfits ? client.store.outfits : client.store.items;
+  @override
+  void initState() {
+    super.initState();
+    tab = widget.initialTab;
+  }
+
   @override
   void dispose() {
     code.dispose();
@@ -147,6 +182,7 @@ class _SharingScreenState extends State<SharingScreen> {
   }
 
   Future<void> importCode() async {
+    if (!hasCompleteCode) return;
     await run(() async {
       final result = await client.redeem(code.text, progress: updateProgress);
       if (!mounted) return;
@@ -199,11 +235,25 @@ class _SharingScreenState extends State<SharingScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: SegmentedButton<int>(
-              segments: const [
-                ButtonSegment(value: 0, label: Text('Send')),
-                ButtonSegment(value: 1, label: Text('Receive')),
-                ButtonSegment(value: 2, label: Text('My codes')),
+              segments: [
+                ButtonSegment(
+                  value: 0,
+                  label: _shareTabLabel('Send', tab == 0),
+                ),
+                ButtonSegment(
+                  value: 1,
+                  label: _shareTabLabel('Receive', tab == 1),
+                ),
+                ButtonSegment(
+                  value: 2,
+                  label: _shareTabLabel('My codes', tab == 2),
+                ),
               ],
+              style: ButtonStyle(
+                padding: WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 6),
+                ),
+              ),
               selected: {tab},
               onSelectionChanged: busy
                   ? null
@@ -355,6 +405,7 @@ class _SharingScreenState extends State<SharingScreen> {
       TextField(
         controller: code,
         enabled: !busy,
+        onChanged: (_) => setState(() {}),
         textCapitalization: TextCapitalization.characters,
         autocorrect: false,
         decoration: const InputDecoration(hintText: 'XXXX-XXXX-XXXX-XXXX'),
@@ -369,7 +420,7 @@ class _SharingScreenState extends State<SharingScreen> {
       const SizedBox(height: 20),
       MainAction(
         'Import collection',
-        busy ? null : importCode,
+        busy || !hasCompleteCode ? null : importCode,
         icon: Icons.download_outlined,
       ),
       const SizedBox(height: 16),
@@ -511,14 +562,19 @@ class _ShareReceiptScreenState extends State<ShareReceiptScreen> {
             outfits.length == (receipt['outfitIds'] as List).length,
         'Some shared records were removed. Choose a new selection from Share.',
       );
-      if (usable || ['uploading', 'verifying'].contains(receipt['state'])) await widget.client.revoke(receipt);
+      if (usable || ['uploading', 'verifying'].contains(receipt['state'])) {
+        await widget.client.revoke(receipt);
+      }
       final fresh = await widget.client.create(
         items,
         outfits,
         progress: (_) {},
       );
       if (mounted) {
-        setState(() { receipt = fresh; qr = null; });
+        setState(() {
+          receipt = fresh;
+          qr = null;
+        });
         await loadQr();
       }
     } catch (error) {

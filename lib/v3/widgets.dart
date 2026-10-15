@@ -9,43 +9,98 @@ class MainTitle extends StatelessWidget {
   final String text;
   final Widget? trailing;
   final VoidCallback? onBack;
-  const MainTitle(this.text, {super.key, this.trailing, this.onBack});
+  final bool centered;
+  const MainTitle(
+    this.text, {
+    super.key,
+    this.trailing,
+    this.onBack,
+    this.centered = false,
+  });
   @override
   Widget build(BuildContext context) {
-    final title = Theme.of(context).textTheme.headlineLarge!
-        .copyWith(fontSize: onBack == null ? 34 : 28);
+    final title = Theme.of(context).textTheme.headlineLarge!.copyWith(
+      fontSize: text == appName
+          ? 26
+          : onBack == null
+          ? 34
+          : 28,
+    );
     final markSize = title.fontSize! * (title.height ?? 1.12);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 14, 16, 18),
-      child: Row(
-        children: [
-          if (onBack != null)
-            IconButton(
+    final heading = text == appName
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  'assets/v3/brand/mark.png',
+                  width: markSize,
+                  height: markSize,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                text,
+                style: title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          )
+        : Text(
+            text,
+            style: title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+    final back = SizedBox(
+      width: 56,
+      child: onBack == null
+          ? null
+          : IconButton(
               tooltip: 'Back',
               onPressed: onBack,
               icon: const Icon(Icons.arrow_back),
             ),
-          if (text == appName) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/v3/brand/mark.png',
-                width: markSize,
-                height: markSize,
-                fit: BoxFit.cover,
+    );
+    final trailingSlot = SizedBox(
+      width: 56,
+      child: trailing == null
+          ? null
+          : Align(alignment: Alignment.centerRight, child: trailing),
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 14, 16, 18),
+      child: Row(
+        children: [
+          if (centered) ...[
+            back,
+            Expanded(child: Center(child: heading)),
+            trailingSlot,
+          ] else ...[
+            if (onBack != null)
+              IconButton(
+                tooltip: 'Back',
+                onPressed: onBack,
+                icon: const Icon(Icons.arrow_back),
               ),
-            ),
-            const SizedBox(width: 10),
+            if (text == appName) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  'assets/v3/brand/mark.png',
+                  width: markSize,
+                  height: markSize,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
+            Expanded(child: heading),
+            ...(trailing == null ? <Widget>[] : [trailing!]),
           ],
-          Expanded(
-            child: Text(
-              text,
-              style: title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          ...(trailing == null ? <Widget>[] : [trailing!]),
         ],
       ),
     );

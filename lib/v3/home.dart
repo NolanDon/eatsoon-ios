@@ -371,7 +371,9 @@ class _HomeState extends State<V3Home> {
 
   Future<void> schedule(Item item) async {
     if (item['sharedReminders'] == false) {
-      try { await vision.invokeMethod('clearReminder', {'id': item['id']}); } catch (_) {}
+      try {
+        await vision.invokeMethod('clearReminder', {'id': item['id']});
+      } catch (_) {}
       return;
     }
     if (appKind == 'fridge' && item['used'] == true) {
@@ -724,6 +726,7 @@ class _HomeState extends State<V3Home> {
             children: [
               MainTitle(
                 appName,
+                centered: true,
                 trailing: TextButton(
                   onPressed: busy ? null : finish,
                   style: TextButton.styleFrom(
@@ -812,6 +815,7 @@ class _HomeState extends State<V3Home> {
                         store!,
                         directory,
                         onImported: importedShared,
+                        initialTab: 1,
                       ),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.grey.shade700,
