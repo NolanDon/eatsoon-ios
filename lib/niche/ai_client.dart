@@ -23,13 +23,20 @@ typedef NativeCall = Future<dynamic> Function(
 );
 
 /// Only the trusted server can access Gemini. Every AI request is bound to a
-/// single-use server challenge and its exact JSON bytes using App Attest.
+/// single-use server challenge and its exact JSON bytes using platform integrity.
 class AiClient {
   final String app;
   final JsonTransport transport;
   final NativeCall native;
-  AiClient(this.app, {JsonTransport? transport, NativeCall? native})
-    : transport = transport ?? _post,
+  final bool isAndroid;
+  AiClient(
+    this.app, {
+    JsonTransport? transport,
+    NativeCall? native,
+    bool? isAndroid,
+  })
+    : isAndroid = isAndroid ?? Platform.isAndroid,
+      transport = transport ?? _post,
       native =
           native ??
           ((method, arguments) =>
@@ -48,35 +55,35 @@ class AiClient {
           'AI is unavailable on this device. You can still use the offline tools.',
         );
       }
-      final prefs = await SharedPreferences.getInstance();
-      final registered = 'companion.attested.$app.$keyId';
-      if (!prefs.containsKey(registered)) {
-        final challenge = await _challenge(keyId, 'register');
-        try {
-          final proof = await native('attest', {
-            'keyId': keyId,
-            'data': challenge['nonce'],
-          });
-          final response = await transport(
-            '/api/mobile/attest',
-            jsonEncode({
-              'schemaVersion': 1,
-              'app': app,
-              'keyId': keyId,
-              'challengeId': challenge['challengeId'],
-              'attestation': proof,
-            }),
-            {},
-          );
-          if (response['registered'] != true) throw const FormatException();
-          await prefs.setBool(registered, true);
-        } catch (_) {
-          // Apple attests a key only once. If registration failed, retry with a
-          // fresh key rather than repeatedly attesting a spent key.
+      if (!isAndroid) {
+        final prefs = await SharedPreferences.getInstance();
+        final registered = 'companion.attested.$app.$keyId';
+        if (!prefs.containsKey(registered)) {
+          final challenge = await _challenge(keyId, 'register');
           try {
-            await native('forgetAttestKey', {});
-          } catch (_) {}
-          rethrow;
+            final proof = await native('attest', {
+              'keyId': keyId,
+              'data': challenge['nonce'],
+            });
+            final response = await transport(
+              '/api/mobile/attest',
+              jsonEncode({
+                'schemaVersion': 1,
+                'app': app,
+                'keyId': keyId,
+                'challengeId': challenge['challengeId'],
+                'attestation': proof,
+              }),
+              {},
+            );
+            if (response['registered'] != true) throw const FormatException();
+            await prefs.setBool(registered, true);
+          } catch (_) {
+            try {
+              await native('forgetAttestKey', {});
+            } catch (_) {}
+            rethrow;
+          }
         }
       }
       final body = jsonEncode({'schemaVersion': 1, ...data});
@@ -85,28 +92,40 @@ class AiClient {
           'This photo is too large. Choose a smaller photo.',
         );
       }
-      final challenge = await _challenge(keyId, path);
-      final assertion = await native('assert', {
+      final challenge = await _challenge(
+        keyId,
+        path,
+        platform: isAndroid ? 'android' : null,
+      );
+      final proof = await native('assert', {
         'keyId': keyId,
         'data': '${challenge['nonce']}\n$path\n$body',
       });
-      final response = await transport(path, body, {
+      final headers = <String, String>{
         'X-Boxill-App': app,
         'X-Boxill-Key-Id': keyId,
         'X-Boxill-Challenge-Id': challenge['challengeId'] as String,
-        'X-Boxill-Assertion': assertion as String,
-      });
+        if (isAndroid) 'X-Boxill-Platform': 'android',
+        if (isAndroid)
+          'X-Boxill-Integrity-Token': proof as String
+        else
+          'X-Boxill-Assertion': proof as String,
+      };
+      final response = await transport(path, body, headers);
       if (response['schemaVersion'] != 1) throw const FormatException();
       return response;
     } on CompanionException {
       rethrow;
-    } on PlatformException {
+    } on PlatformException catch (error) {
+      if (error.code == 'android_verification_pending') {
+        throw const CompanionException('Photo analysis is waiting for Android device verification setup. Your saved items are still available.');
+      }
       throw const CompanionException(
         'Device verification is unavailable. Try again later; offline tools still work.',
       );
     } on MissingPluginException {
       throw const CompanionException(
-        'AI needs a supported iPhone or iPad. Offline tools still work.',
+        'AI verification is unavailable on this device. Offline tools still work.',
       );
     } on TimeoutException {
       throw const CompanionException(
@@ -123,15 +142,21 @@ class AiClient {
     }
   }
 
-  Future<Map<String, dynamic>> _challenge(String keyId, String purpose) async {
+  Future<Map<String, dynamic>> _challenge(
+    String keyId,
+    String purpose, {
+    String? platform,
+  }) async {
+    final request = <String, dynamic>{
+      'schemaVersion': 1,
+      'app': app,
+      'keyId': keyId,
+      'purpose': purpose,
+    };
+    if (platform != null) request['platform'] = platform;
     final result = await transport(
       '/api/mobile/challenge',
-      jsonEncode({
-        'schemaVersion': 1,
-        'app': app,
-        'keyId': keyId,
-        'purpose': purpose,
-      }),
+      jsonEncode(request),
       {},
     );
     for (final key in ['nonce', 'challengeId']) {

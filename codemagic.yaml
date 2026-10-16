@@ -28,10 +28,10 @@ workflows:
       - name: Analyze
         script: flutter analyze
       - name: Run tests
-        script: flutter test
+        script: flutter test --dart-define=REVENUECAT_IOS_API_KEY=appl_test_sdk_key
       - name: Build IPA
         script: |
-          flutter build ipa --export-options-plist=$HOME/export_options.plist
+          flutter build ipa --dart-define="REVENUECAT_IOS_API_KEY=${REVENUECAT_IOS_API_KEY:-}" --export-options-plist=$HOME/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:

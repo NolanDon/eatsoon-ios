@@ -57,7 +57,8 @@ int whole(Object? value, {int min = 0, int max = 1000000}) {
 }
 
 void validateItem(String kind, Item item) {
-  if (item['sharedReminders'] != null) need(item['sharedReminders'] is bool, 'Invalid reminder setting.');
+  if (item['sharedReminders'] != null)
+    need(item['sharedReminders'] is bool, 'Invalid reminder setting.');
   need(
     item['id'] is String && (item['id'] as String).isNotEmpty,
     'Missing identifier.',
@@ -437,6 +438,9 @@ class V3Store extends ChangeNotifier {
 
   Future<void> addAll(List<Item> values) => _change((items, outfits, plans) {
     for (final value in values) {
+      if (kind == 'fridge' &&
+          items.any((existing) => sameFood(existing, value)))
+        continue;
       items.add({...value, 'id': '${uniqueId()}-${items.length}'});
     }
   });
@@ -689,4 +693,18 @@ List<({String id, int allocation, int remaining})> allocatePayday(
       remaining: needed - amount,
     );
   }).toList();
+}
+
+/// Preserve separate dated batches, while repeated scans of the same food do
+/// not create duplicates or overwrite the user's dates and notes.
+bool sameFood(Item a, Item b) {
+  String name(Item item) => (item['name'] as String? ?? '')
+      .trim()
+      .toLowerCase()
+      .replaceAll(RegExp(r'\s+'), ' ');
+  return a['used'] != true &&
+      b['used'] != true &&
+      name(a) == name(b) &&
+      a['location'] == b['location'] &&
+      a['labelDate'] == b['labelDate'];
 }

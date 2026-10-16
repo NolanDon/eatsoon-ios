@@ -64,7 +64,7 @@ void main(){
    final again=await client.redeem('ABCDEFGHJKMNPQRS',progress:(_){ });expect(again.count,0);expect(store.items.length,1);expect(operations.where((v)=>v=='redeem').length,1);
  });
  testWidgets('share all selects actual records and receive is available with an empty collection',(t)async{
-   final prefs=await SharedPreferences.getInstance(),store=V3Store(appId,appKind,prefs);await store.addAll([fixture(appKind),fixture(appKind)]);
+   final prefs=await SharedPreferences.getInstance(),store=V3Store(appId,appKind,prefs);await store.addAll([fixture(appKind),{...fixture(appKind), 'name': 'Second food'}]);
    await t.pumpWidget(MaterialApp(theme:v3Theme(),home:SharingScreen(client:TransferClient(store,'',prefs),onImported:(_)async{})));await t.pumpAndSettle();
    expect(find.text('Share all 2'),findsOneWidget);await t.tap(find.text('Share all 2'));await t.pumpAndSettle();
    expect(t.widgetList<CheckboxListTile>(find.byType(CheckboxListTile)).every((v)=>v.value==true),true);
@@ -76,8 +76,8 @@ void main(){
    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(visionChannel,(call)async{if(call.method=='reminderPermission'){requests++;return true;}return null;});
    addTearDown(()=>TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(visionChannel,null));
    await t.pumpWidget(MaterialApp(theme:v3Theme(),home:Scaffold(body:FeatureOnboarding(onDone:()=>finished=true))));await t.pumpAndSettle();
-   await t.tap(find.text('Get started'));await t.pumpAndSettle();
-   await t.tap(find.text('Next'));await t.pumpAndSettle();await t.tap(find.text('Next'));await t.pumpAndSettle();
+   await t.tap(find.text('Open my kitchen'));await t.pumpAndSettle();
+   await t.tap(find.text('See how it works'));await t.pumpAndSettle();await t.tap(find.text('See how it works'));await t.pumpAndSettle();
    expect(requests,0);expect(find.text('Allow notifications'),findsOneWidget);expect(find.text('Skip'),findsOneWidget);
    await t.tap(find.text('Allow notifications'));await t.pumpAndSettle();expect(requests,1);expect(finished,true);expect((await SharedPreferences.getInstance()).getBool('v3.$appId.reminders'),true);
  });

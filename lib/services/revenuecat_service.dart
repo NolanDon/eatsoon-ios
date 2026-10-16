@@ -34,6 +34,7 @@ abstract class RevenueCatService {
 class LiveRevenueCatService implements RevenueCatService {
   @override
   Future<void> init() async {
+    if (AppConfig.revenueCatApiKey.isEmpty) return;
     await Purchases.configure(
       PurchasesConfiguration(AppConfig.revenueCatApiKey),
     );

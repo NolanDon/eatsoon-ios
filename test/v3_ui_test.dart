@@ -17,8 +17,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() async {
     await (FontLoader(brandFont)
-          ..addFont(rootBundle.load('assets/v3/fonts/brand.ttf'))
-          ..addFont(rootBundle.load('assets/v3/fonts/bold.ttf')))
+          ..addFont(rootBundle.load('assets/v3/fonts/bricolage.ttf'))
+          ..addFont(rootBundle.load('assets/v3/fonts/bricolage.ttf')))
         .load();
     await (FontLoader(
       'MaterialIcons',
@@ -120,14 +120,14 @@ void main() {
       MaterialApp(theme: v3Theme(), home: const V3Home()),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Get started'), findsOneWidget);
-    await tester.tap(find.text('Get started'));
+    expect(find.text('Open my kitchen'), findsOneWidget);
+    await tester.tap(find.text('Open my kitchen'));
     await tester.pumpAndSettle();
     for (var i = 0; i < (introSteps.length - 2); i++) {
-      await tester.tap(find.text('Next'));
+      await tester.tap(find.text('See how it works'));
       await tester.pumpAndSettle();
     }
-    await tester.tap(find.text(needsReminderIntro ? 'Skip' : 'Try it now'));
+    await tester.tap(find.text(needsReminderIntro ? 'Skip' : 'Stock my fridge'));
     await tester.pumpAndSettle();
     expect(find.text(photoInstruction), findsOneWidget);
     if (const bool.fromEnvironment('FIX_PHOTO_GOLDEN')) {
@@ -136,10 +136,10 @@ void main() {
         matchesGoldenFile('goldens/fix_photo_step.png'),
       );
     }
-    await tester.tap(find.text('Take a photo'));
+    await tester.tap(find.text('Scan food'));
     await tester.pumpAndSettle();
-    expect(find.text('Enter manually'), findsNothing);
-    expect(find.text('Choose a photo'), findsOneWidget);
+    expect(find.text('Type food details'), findsNothing);
+    expect(find.text('Pick a food photo'), findsOneWidget);
     expect(find.text('Skip'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -165,9 +165,7 @@ void main() {
       expect(find.byType(Dashboard), findsOneWidget);
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
-      expect(find.text('Continue free'), findsOneWidget);
-      await tester.tap(find.text('Continue free'));
-      await tester.pumpAndSettle();
+      // Missing platform billing configuration returns cleanly to the free flow.
       expect(find.text('Your next step'), findsOneWidget);
       expect(find.byType(Dashboard), findsOneWidget);
       await tester.tap(find.text('Later'));
@@ -189,7 +187,7 @@ void main() {
       await tester.pumpAndSettle();
       tester.widget<Dashboard>(find.byType(Dashboard)).actions.add();
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Enter manually'));
+      await tester.tap(find.text('Type food details'));
       await tester.pumpAndSettle();
       Future<void> fill(String label, String value) async {
         final field = find.widgetWithText(TextFormField, label);
@@ -214,7 +212,7 @@ void main() {
           await fill(entry.key, entry.value);
         }
       }
-      await tester.tap(find.text('Save'));
+      await tester.tap(find.text('Stock my kitchen'));
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();

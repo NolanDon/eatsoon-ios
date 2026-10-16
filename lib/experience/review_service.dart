@@ -173,6 +173,9 @@ class ReviewService {
 /// Resolve the real published listing by bundle ID if no build-time ID is set.
 /// Beta-only apps simply have no public review destination yet.
 Future<bool> openAppStoreReview(String configuredId) async {
+  if (Platform.isAndroid) {
+    return launchUrl(Uri.https('play.google.com', '/store/apps/details', {'id': 'com.boxill.eatsoon'}), mode: LaunchMode.externalApplication);
+  }
   var id = configuredId;
   final prefs = ExperiencePreferences.instance.store;
   if (id.isEmpty) id = prefs?.getString('experience.appStoreId') ?? '';

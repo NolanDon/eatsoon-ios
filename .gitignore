@@ -46,3 +46,12 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Release credentials are external; never commit signing material.
+*.jks
+*.keystore
+key.properties
+signing.properties
+
+revenuecat.json
+revenuecat-*.json

@@ -1,3 +1,6 @@
+import '../experience/brand_motion.dart';
+
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -66,7 +69,7 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       'Try it with your clothes',
       'Photograph a whole garment in bright, even light, or choose an existing photo. Each picture becomes a piece in your wardrobe.',
       'Ready for your first piece',
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'plant' => const [
@@ -74,19 +77,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn a plant photo into a care plan",
       "Tendly suggests a likely plant name and a soil-check rhythm. Review the draft before saving.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Frame the leaves and the pot",
       "Photograph one whole houseplant in daylight. Keep the leaves sharp and the pot in view.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Save, check soil, then record care",
       "Your plant appears on your dashboard. Check the soil before watering, then record what you did.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'meal' => const [
@@ -94,19 +97,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn your meal into a recipe draft",
       "ScaleRecipe suggests ingredients and cooking steps from a meal photo. Review the estimates before cooking.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Photograph the whole cooked meal",
       "Use a clear, well-lit photo of prepared food. Keep the full plate in view and skip blurry pictures.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Save a recipe and change servings",
       "Choose how many people you are cooking for. Ingredient quantities scale with your serving count.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'fridge' => const [
@@ -114,19 +117,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn a fridge photo into a food list",
       "EatSoon drafts a list of visible food so you can use it sooner. Review each item and its dates.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Show the food and face labels forward",
       "Photograph your open fridge or several food packages in good light. Include readable date labels when possible.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Save the list and mark food used",
       "Your dashboard puts upcoming checks first. Dates are reminders to check labels, not food-safety guarantees.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'knitting' => const [
@@ -134,19 +137,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn a pattern photo into a row guide",
       "KnitTally helps you follow a written knitting pattern or stitch chart. Review the detected rows before starting.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Photograph readable rows or a close-up stitch",
       "Keep the chart symbols or written instructions sharp and flat. A fabric photo can suggest a stitch, but cannot reveal a complete pattern.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Follow a row and keep your place",
       "Work through the saved instructions and advance your row. Your progress stays ready for the next session.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'goal' => const [
@@ -154,19 +157,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn your next purchase into a savings goal",
       "Weekstash helps you save for one specific thing. Choose a product listing with a visible price or enter your target.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Photograph a written goal or product screenshot",
       "Write your goal on paper and take a photo, or use a clear product screenshot with its price. Check the amount before saving.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Record savings and watch your progress",
       "Add only money you actually set aside. Your goal fills as you record contributions.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'maintenance' => const [
@@ -174,19 +177,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn a receipt into a service record",
       "Odoly keeps a vehicle service history you can review. It reads visible tasks, dates and mileage without diagnosing repairs.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Photograph a readable service receipt",
       "Keep the whole receipt flat and its text sharp. An odometer photo also works when the mileage and unit are visible.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Save the service and revisit the history",
       "Check the extracted details and add missing information. Your dashboard keeps the record with your vehicle.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'drawing' => const [
@@ -194,19 +197,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn your drawing into a four-scene comic",
       "Doodlebook redraws your character in four new illustrated scenes. You can edit every caption after opening the comic.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Photograph one drawing, flat and clear",
       "Use an original doodle on paper in even light. Keep the character visible and avoid glare or blurred lines.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Open your comic, edit it, and share",
       "Your new comic appears on the same bookshelf as your saved comics. Open it to read the scenes and change their captions.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'wrapping' => const [
@@ -214,19 +217,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn an awkward gift into a wrapping plan",
       "Foldora chooses a practical wrapping method for the shape you show. Follow a folding guide using supplies you already have.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Photograph the unwrapped gift",
       "Show one whole object on a plain surface. Keep every edge in frame; a photo cannot determine its exact measurements.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Follow the folds and share the finished gift",
       "Review the method, gather paper or cloth, and follow each step. Save your progress and share the wrapping plan.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   'mending' => const [
@@ -234,19 +237,19 @@ List<IntroStep> get _coreIntroSteps => switch (appKind) {
       "Turn a small tear into a repair project",
       "Patchling helps you plan a visible patch, seam repair or button replacement. Keep the garment and record your progress.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.fact_check_outlined,
     ),
     IntroStep(
       "Photograph the damage close up",
       "Lay the garment flat in good light. Show the tear and surrounding fabric; do not photograph an injury or skin.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.inventory_2_outlined,
     ),
     IntroStep(
       "Follow the stitches and save your mend",
       "Check the suggested technique and supplies before starting. Follow one step at a time and share your repair plan.",
       "",
-      Icons.camera_alt_outlined,
+      Icons.kitchen_outlined,
     ),
   ],
   _ => const [],
@@ -353,53 +356,56 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
                   horizontal: 24,
                   vertical: 8,
                 ),
-                child: Column(
-                  children: [
-                    Semantics(
-                      label: 'Step ${index + 1} of ${steps.length}',
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          steps.length,
-                          (i) => AnimatedContainer(
-                            duration: MediaQuery.disableAnimationsOf(context)
-                                ? Duration.zero
-                                : const Duration(milliseconds: 240),
-                            width: i == index ? 44 : 16,
-                            height: 3,
-                            margin: const EdgeInsets.symmetric(horizontal: 3),
-                            decoration: BoxDecoration(
-                              color: ink.withValues(
-                                alpha: i == index ? .9 : .22,
+                child: BrandEntrance(
+                  key: ValueKey(index),
+                  child: Column(
+                    children: [
+                      Semantics(
+                        label: 'Step ${index + 1} of ${steps.length}',
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            steps.length,
+                            (i) => AnimatedContainer(
+                              duration: MediaQuery.disableAnimationsOf(context)
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 240),
+                              width: i == index ? 44 : 16,
+                              height: 3,
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                              decoration: BoxDecoration(
+                                color: ink.withValues(
+                                  alpha: i == index ? .9 : .22,
+                                ),
+                                borderRadius: BorderRadius.circular(3),
                               ),
-                              borderRadius: BorderRadius.circular(3),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    FeatureDemo(
-                      kind: appKind,
-                      index: index,
-                      step: step,
-                      height: demoHeight,
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      step.title,
-                      style: titleStyle,
-                      textAlign: TextAlign.center,
-                    ),
-                    if (appKind != 'drawing') ...[
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
+                      FeatureDemo(
+                        kind: appKind,
+                        index: index,
+                        step: step,
+                        height: demoHeight,
+                      ),
+                      const SizedBox(height: 24),
                       Text(
-                        step.body,
-                        style: bodyStyle,
+                        step.title,
+                        style: titleStyle,
                         textAlign: TextAlign.center,
                       ),
+                      if (appKind != 'drawing') ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          step.body,
+                          style: bodyStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               );
             },
@@ -422,10 +428,10 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
             needsReminderIntro && index == steps.length - 1
                 ? 'Allow notifications'
                 : index == 0
-                ? 'Get started'
+                ? 'Open my kitchen'
                 : index == steps.length - 1
-                ? 'Try it now'
-                : 'Next',
+                ? 'Stock my fridge'
+                : 'See how it works',
             enabling
                 ? null
                 : needsReminderIntro && index == steps.length - 1
@@ -489,12 +495,19 @@ class _SaveDemo extends StatefulWidget {
 
 class _SaveDemoState extends State<_SaveDemo> {
   bool saved = false;
+  late final Timer _saveTimer;
   @override
   void initState() {
     super.initState();
-    Future<void>.delayed(const Duration(milliseconds: 900), () {
+    _saveTimer = Timer(const Duration(milliseconds: 900), () {
       if (mounted) setState(() => saved = true);
     });
+  }
+
+  @override
+  void dispose() {
+    _saveTimer.cancel();
+    super.dispose();
   }
 
   @override

@@ -1,3 +1,6 @@
+import '../experience/brand_motion.dart';
+import '../platform/app_vision.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -6,7 +9,7 @@ import 'brand.dart';
 import 'model.dart';
 import 'widgets.dart';
 
-const vision = MethodChannel('com.boxill/vision');
+const vision = AppVision();
 Future<List<Item>?> readPhoto(
   BuildContext context,
   String directory, {
@@ -43,21 +46,27 @@ Future<List<Item>?> readPhoto(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Use this photo?',
+                'Check this food photo?',
                 style: Theme.of(sheet).textTheme.headlineLarge,
               ),
               const SizedBox(height: 18),
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Photo(photo!['file'] as String, directory, height: 220),
+                child: BrandEntrance(
+                  child: Photo(
+                    photo!['file'] as String,
+                    directory,
+                    height: 220,
+                  ),
+                ),
               ),
               const SizedBox(height: 18),
               const Text(
-                'Send this photo securely to Boxill Apps and Google Gemini to create an editable draft. Your saved collection stays on this device; review the draft before saving.',
+                'Send this food photo to Google Gemini to list visible items. Check names and dates before adding.',
               ),
               const SizedBox(height: 22),
               MainAction(
-                'Analyze photo',
+                'Find food in photo',
                 () => Navigator.pop(sheet, true),
                 icon: Icons.auto_awesome_outlined,
               ),
@@ -158,7 +167,7 @@ String photoError(PlatformException error) => switch (error.code) {
   'cutout' || 'crop' => 'Could not remove the background. Lay the item flat on a plain surface and try again, or enter it manually.',
   'busy' => 'Finish the open camera or photo picker, then try again.',
   'permission' =>
-    'Camera access is off. Allow it in iPhone Settings or choose a photo.',
+    'Camera access is off. Allow it in device Settings or choose a photo.',
   'photo' || 'image' =>
     'Choose a clear photo with the full subject visible and even lighting.',
   _ => 'Camera unavailable. Choose a photo or enter the details manually.',

@@ -21,7 +21,7 @@ void main() {
   setUp(() async {
     await (FontLoader(
       brandFont,
-    )..addFont(rootBundle.load('assets/v3/fonts/brand.ttf'))).load();
+    )..addFont(rootBundle.load('assets/v3/fonts/bricolage.ttf'))).load();
     SharedPreferences.setMockInitialValues({});
     ExperiencePreferences.instance = ExperiencePreferences(
       await SharedPreferences.getInstance(),
@@ -91,10 +91,10 @@ void main() {
             needsReminderIntro && i == introSteps.length - 1
                 ? 'Skip'
                 : i == 0
-                ? 'Get started'
+                ? 'Open my kitchen'
                 : i == introSteps.length - 1
-                ? 'Try it now'
-                : 'Next',
+                ? 'Stock my fridge'
+                : 'See how it works',
           ),
         );
       }
@@ -113,14 +113,12 @@ void main() {
       await prefs.setBool('v3.$appId.wizard', true);
       await t.pumpWidget(MaterialApp(theme: v3Theme(), home: const V3Home()));
       await t.pumpAndSettle();
-      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.tune), findsNothing);
-      await t.tap(find.byTooltip('Settings'));
+      await t.tap(find.byTooltip('Kitchen settings'));
       await t.pumpAndSettle();
       expect(find.byType(AppSettings), findsOneWidget);
       expect(find.text('Your profile'), findsOneWidget);
       final first = t.getRect(
-        find.widgetWithText(ListTile, 'Plans and restore purchases'),
+        find.widgetWithText(ListTile, 'EatSoon kitchen pass'),
       );
       final second = t.getRect(
         find.widgetWithText(ListTile, 'Manage subscriptions'),
@@ -144,7 +142,12 @@ void main() {
       await t.tap(find.text('Feedback and support'));
       await t.pumpAndSettle();
       expect(find.byType(SupportScreen), findsOneWidget);
-      expect(find.text('support@boxillapps.com'), findsOneWidget);
+      await t.tap(find.text('Copy support email'));
+      await t.pumpAndSettle();
+      expect(
+        (await Clipboard.getData('text/plain'))?.text,
+        'support@boxillapps.com',
+      );
       expect(t.takeException(), isNull);
     },
   );
@@ -209,10 +212,10 @@ void main() {
   final capture=Completer<dynamic>();
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('com.boxill/vision'),(call)async{if(call.method=='directory')return '';if(call.method=='capture')return capture.future;return null;});
   await t.pumpWidget(MaterialApp(theme:v3Theme(),home:const V3Home()));await t.pumpAndSettle();
-  await t.tap(find.text('Get started'));await t.pumpAndSettle();for(var i=0;i<(introSteps.length - 2);i++){await t.tap(find.text('Next'));await t.pumpAndSettle();}await t.tap(find.text(needsReminderIntro ? 'Skip' : 'Try it now'));await t.pumpAndSettle();
-  await t.tap(find.text('Take a photo'));await t.pump(const Duration(milliseconds:700));
+  await t.tap(find.text('Open my kitchen'));await t.pumpAndSettle();for(var i=0;i<(introSteps.length - 2);i++){await t.tap(find.text('See how it works'));await t.pumpAndSettle();}await t.tap(find.text(needsReminderIntro ? 'Skip' : 'Stock my fridge'));await t.pumpAndSettle();
+  await t.tap(find.text('Scan food'));await t.pump(const Duration(milliseconds:700));
   final mascot=find.byWidgetPredicate((w)=>w is Mascot&&w.pose=='thinking');expect(mascot,findsOneWidget);
-  final action=t.getRect(find.widgetWithText(FilledButton,'Take a photo'));expect(action.top-t.getRect(mascot).bottom,greaterThanOrEqualTo(32));expect(t.takeException(),isNull);
+  final action=t.getRect(find.widgetWithText(FilledButton,'Scan food'));expect(action.top-t.getRect(mascot).bottom,greaterThanOrEqualTo(32));expect(t.takeException(),isNull);
   capture.complete(null);await t.pumpAndSettle();expect(t.takeException(),isNull);
  });
 

@@ -41,11 +41,13 @@ class MainTitle extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Text(
-                text,
-                style: title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Text(
+                  text,
+                  style: title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           )
@@ -122,21 +124,33 @@ class MainAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox(
     width: double.infinity,
-    child: FilledButton.icon(
+    child: FilledButton(
       onPressed: onTap,
       style: FilledButton.styleFrom(
-        minimumSize: const Size(56, 62),
+        minimumSize: const Size(56, 56),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         textStyle: Theme.of(context).textTheme.labelLarge
             ?.copyWith(fontSize: fontSize),
       ),
-      icon: Icon(icon),
-      iconAlignment:
-          icon == Icons.arrow_forward ||
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (icon != Icons.arrow_forward &&
+              icon != Icons.arrow_right_alt &&
+              icon != Icons.east) ...[
+            Icon(icon),
+            const SizedBox(width: 8),
+          ],
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
+          if (icon == Icons.arrow_forward ||
               icon == Icons.arrow_right_alt ||
-              icon == Icons.east
-          ? IconAlignment.end
-          : IconAlignment.start,
-      label: Text(label),
+              icon == Icons.east) ...[
+            const SizedBox(width: 8),
+            Icon(icon),
+          ],
+        ],
+      ),
     ),
   );
 }

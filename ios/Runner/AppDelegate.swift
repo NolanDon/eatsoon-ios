@@ -323,7 +323,7 @@ private final class V3Camera: UIViewController, AVCapturePhotoCaptureDelegate,
   let frame = UIView()
   var captureButton = UIButton(type: .system)
   var autoButton = UIButton(type: .system)
-  var autoCapture = true
+  var autoCapture = false
   var stable = 0
   var lastTime = 0.0
   var capturing = false
@@ -339,16 +339,16 @@ private final class V3Camera: UIViewController, AVCapturePhotoCaptureDelegate,
     message.textAlignment = .center
     message.font = .systemFont(ofSize: 18, weight: .semibold)
     frame.layer.borderWidth = 3
-    frame.layer.cornerRadius = 24
+    frame.layer.cornerRadius = 16
     frame.layer.borderColor = UIColor.white.cgColor
     frame.isUserInteractionEnabled = false
-    captureButton.setTitle("Take photo", for: .normal)
+    captureButton.setTitle("Scan food", for: .normal)
     captureButton.titleLabel?.font = .systemFont(ofSize: 19, weight: .bold)
     captureButton.backgroundColor = .white
     captureButton.tintColor = .black
-    captureButton.layer.cornerRadius = 28
+    captureButton.layer.cornerRadius = 12
     captureButton.addTarget(self, action: #selector(capture), for: .touchUpInside)
-    autoButton.setTitle("Auto capture: on", for: .normal)
+    autoButton.setTitle("Auto food scan: off", for: .normal)
     autoButton.tintColor = .white
     autoButton.addTarget(self, action: #selector(toggleAuto), for: .touchUpInside)
     let cancel = UIButton(type: .system)
@@ -465,12 +465,17 @@ private final class V3Camera: UIViewController, AVCapturePhotoCaptureDelegate,
   @objc func toggleAuto() {
     autoCapture.toggle()
     stable = 0
-    autoButton.setTitle(autoCapture ? "Auto capture: on" : "Auto capture: off", for: .normal)
+    autoButton.setTitle(autoCapture ? "Auto food scan: on" : "Auto food scan: off", for: .normal)
   }
   @objc func capture() {
     guard !capturing, session.isRunning else { return }
     capturing = true
     captureButton.isEnabled = false
+    if !UIAccessibility.isReduceMotionEnabled {
+      UIView.animate(withDuration: 0.12, animations: { self.captureButton.transform = CGAffineTransform(translationX: 0, y: -8) }) { _ in
+        UIView.animate(withDuration: 0.16) { self.frame.transform = .identity; self.captureButton.transform = .identity; self.frame.alpha = 1 }
+      }
+    }
     queue.async { self.output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self) }
   }
   func photoOutput(
@@ -669,7 +674,7 @@ extension AppDelegate {
               }
               let camera = V3Camera()
               camera.completion = completion
-              let guides=["clothing":"Lay one item flat. Fill the frame.","fridge":"Frame your fridge. Keep labels visible.","plant":"Show the leaves. Use even lighting.","meal":"Fill the frame with a clear meal.","knitting":"Keep the pattern or stitches sharp.","furniture":"Show the item and printed sizes.","ticket":"Frame event details. Hide private info.","maintenance":"Frame a receipt or odometer.","goal":"Show your goal and any printed price.","drawing":"Fill the frame with your drawing."]
+              let guides=["clothing":"Lay one item flat. Fill the frame.","fridge":"Frame your fridge. Keep labels visible.","plant":"Show the leaves. Use even lighting.","meal":"Fill the frame with a clear meal.","knitting":"Keep the pattern or stitches sharp.","furniture":"Show the item and printed sizes.","ticket":"Frame event details. Hide private info.","maintenance":"Frame a receipt or odometer.","goal":"Show your goal and any printed price.","drawing":"Frame your drawing, clay figure or handmade character."]
               camera.guide=guides[args["kind"] as? String ?? ""] ?? camera.guide
               camera.modalPresentationStyle = .fullScreen
               presenter.present(camera, animated: true)

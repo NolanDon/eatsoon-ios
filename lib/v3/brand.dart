@@ -8,10 +8,10 @@ const apiAppId = 'eatsoon';
 const appName = 'EatSoon';
 const appKind = 'fridge';
 const appTagline = 'Your fridge, ready to use.';
-const brandFont = 'Mada';
-const paper = Color(0xFFF0F7F4);
-const ink = Color(0xFF13615A);
-const accent = Color(0xFFDAA544);
+const brandFont = 'Bricolage Grotesque';
+const paper = Color(0xFFF5EDE0);
+const ink = Color(0xFF40382E);
+const accent = Color(0xFF68866B);
 bool _licensed = false;
 ThemeData v3Theme() {
   if (!_licensed) {
@@ -19,7 +19,7 @@ ThemeData v3Theme() {
     LicenseRegistry.addLicense(() async* {
       yield LicenseEntryWithLineBreaks([
         brandFont,
-      ], await rootBundle.loadString('assets/v3/fonts/OFL.txt'));
+      ], await rootBundle.loadString('assets/v3/fonts/Bricolage-OFL.txt'));
     });
   }
   final base = ThemeData(
@@ -95,7 +95,7 @@ ThemeData v3Theme() {
       style: TextButton.styleFrom(
         minimumSize: const Size(48, 48),
         textStyle: const TextStyle(
-          fontFamily: '.SF Pro Text',
+          fontFamily: brandFont,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),

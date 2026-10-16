@@ -21,11 +21,18 @@ class DashboardState extends State<Dashboard> {
   }
 
   Future<void> used(Item item) async {
+    if (!await confirm(
+      context,
+      'Mark ${item['name']} as gone?',
+      'This moves it out of your current food list. You can undo this afterward.',
+      action: 'Mark gone',
+    ))
+      return;
     await a.update({...item, 'used': true, 'usedDate': day(DateTime.now())});
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${item['name']} used'),
+          content: Text('${item['name']} marked gone'),
           action: SnackBarAction(
             label: 'Undo',
             onPressed: () =>
@@ -144,13 +151,7 @@ class DashboardState extends State<Dashboard> {
                             color: ink.withValues(alpha: .08),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: Icon(
-                            item['location'] == 'freezer'
-                                ? Icons.ac_unit
-                                : Icons.egg_outlined,
-                            size: 30,
-                            color: ink,
-                          ),
+                          child: Icon(foodIcon(item), size: 30, color: ink),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -186,9 +187,9 @@ class DashboardState extends State<Dashboard> {
                           ),
                         ),
                         IconButton(
-                          tooltip: 'Mark used',
+                          tooltip: 'Mark food as gone',
                           onPressed: () => used(item),
-                          icon: const Icon(Icons.check_circle_outline),
+                          icon: const Icon(Icons.remove_circle_outline),
                           style: IconButton.styleFrom(
                             backgroundColor: Colors.white,
                             minimumSize: const Size(54, 54),
@@ -216,12 +217,44 @@ class DashboardState extends State<Dashboard> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 10, 24, 20),
           child: MainAction(
-            'Scan the fridge',
-            a.add,
+            all.isEmpty ? 'Scan the fridge' : 'Add more items',
+            () async {
+              if (all.isNotEmpty &&
+                  !await confirm(
+                    context,
+                    'Add to your kitchen',
+                    'Your current food stays. Repeated items are skipped; new purchases with a different label date are kept separately.',
+                    action: 'Add more',
+                  ))
+                return;
+              a.add();
+            },
             icon: Icons.camera_alt_outlined,
           ),
         ),
       ],
     );
   }
+}
+
+IconData foodIcon(Item item) {
+  final value = '${item['category'] ?? ''} ${item['name'] ?? ''}'.toLowerCase();
+  bool matches(String pattern) => RegExp(pattern).hasMatch(value);
+  if (matches(r'egg')) return Icons.egg_outlined;
+  if (matches(r'milk|yogurt|cheese|cream|butter|dairy'))
+    return Icons.local_drink_outlined;
+  if (matches(r'apple|banana|berry|berries|fruit|orange|grape|lemon'))
+    return Icons.apple_outlined;
+  if (matches(
+    r'carrot|broccoli|lettuce|spinach|vegetable|tomato|pepper|onion|salad',
+  ))
+    return Icons.eco_outlined;
+  if (matches(r'meat|chicken|beef|pork|fish|salmon|tofu|protein'))
+    return Icons.set_meal_outlined;
+  if (matches(r'bread|rice|pasta|grain|cereal|oat|flour'))
+    return Icons.bakery_dining_outlined;
+  if (matches(r'juice|water|drink|soda|coffee|tea'))
+    return Icons.local_cafe_outlined;
+  if (item['location'] == 'freezer') return Icons.ac_unit;
+  return Icons.shopping_basket_outlined;
 }

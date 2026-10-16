@@ -543,7 +543,11 @@ class _EditorState extends State<ItemEditor> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
-              child: MainAction('Save', save, icon: Icons.check),
+              child: MainAction(
+                'Stock my kitchen',
+                save,
+                icon: Icons.inventory_2_outlined,
+              ),
             ),
           ],
         ),

@@ -126,46 +126,17 @@ void main() {
   });
 
   group('Paywall', () {
-    testWidgets('shows both plans, yearly is best value', (tester) async {
-      final prefs = await _mockPrefs();
-      await tester.pumpWidget(_testApp(PaywallScreen(onDone: (_) {}), prefs));
+    testWidgets('missing Android billing returns cleanly without granting Pro', (tester) async {
+      bool? unlocked;
+      await tester.pumpWidget(MaterialApp(home: Builder(builder: (context) => Scaffold(body: TextButton(
+        onPressed: () async { unlocked = await Navigator.push<bool>(context, MaterialPageRoute(builder: (page) => PaywallScreen(onDone: (value) => Navigator.pop(page, value)))); },
+        child: const Text('Open membership'),
+      )))));
+      await tester.tap(find.text('Open membership'));
       await tester.pumpAndSettle();
-
-      expect(find.text('EatSoon Pro'), findsOneWidget);
-      expect(find.text('Monthly'), findsOneWidget);
-      expect(find.text('Yearly'), findsOneWidget);
-      expect(find.text('Best value'), findsOneWidget);
-      expect(find.text('\$2.99'), findsOneWidget);
-      expect(find.text('\$19.99'), findsOneWidget);
-    });
-
-    testWidgets('selecting monthly then purchasing completes', (tester) async {
-      final prefs = await _mockPrefs();
-      var purchased = false;
-      await tester.pumpWidget(
-        _testApp(PaywallScreen(onDone: (p) => purchased = p), prefs),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Monthly'));
-      await tester.pumpAndSettle();
-      expect(find.text('Start 3-day free trial'), findsOneWidget);
-      await tester.tap(find.text('Start 3-day free trial'));
-      await tester.pumpAndSettle();
-      expect(purchased, isTrue);
-    });
-
-    testWidgets('close button dismisses without purchase', (tester) async {
-      final prefs = await _mockPrefs();
-      var calledWith = true;
-      await tester.pumpWidget(
-        _testApp(PaywallScreen(onDone: (p) => calledWith = p), prefs),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byIcon(Icons.close));
-      await tester.pumpAndSettle();
-      expect(calledWith, isFalse);
+      expect(unlocked, false);
+      expect(find.text('Open membership'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 

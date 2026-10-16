@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../v3/brand.dart' show appName;
 
-enum FeedbackOutcome { sent, saved, cancelled, unavailable, failed }
+enum FeedbackOutcome { sent, saved, cancelled, unavailable, failed, opened }
 
 typedef FeedbackSender = Future<FeedbackOutcome> Function({
   required String category,
@@ -80,10 +80,11 @@ class _FeedbackFormState extends State<FeedbackForm> {
         _status = switch (outcome) {
           FeedbackOutcome.sent =>
             'Thank you for helping improve $appName! Your feedback is queued for sending to support@boxillapps.com.',
+          FeedbackOutcome.opened => 'Continue in your email app to send. Your feedback draft is kept here.',
           FeedbackOutcome.saved => 'Your email was saved as a draft. You can send it from Mail when you’re ready.',
           FeedbackOutcome.cancelled =>
             'Sending cancelled. Your feedback draft is still here.',
-          FeedbackOutcome.unavailable => 'Set up an account in Apple Mail to send feedback, or email support@boxillapps.com from your preferred email app. Your draft is saved.',
+          FeedbackOutcome.unavailable => 'Open your preferred email app and contact support@boxillapps.com. Your feedback draft is saved here.',
           FeedbackOutcome.failed => 'Your feedback could not be sent. Your draft is saved; please try again or email support@boxillapps.com.',
         };
       });

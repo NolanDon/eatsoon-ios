@@ -14,7 +14,7 @@ class DraftContext {
         title: const Text('Send these notes to AI?'),
         content: SingleChildScrollView(
           child: Text(
-            'Only the notes below will be sent to Boxill Apps and Google Gemini to extract an editable draft. Saved records and histories are not sent. Avoid sensitive information. AI may misread details; verify every field before saving.\n\n$notes',
+            'Send these notes to Google Gemini for an editable draft. Check the details before keeping it.\n\n$notes',
           ),
         ),
         actions: [

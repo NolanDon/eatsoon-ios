@@ -13,6 +13,47 @@ const workflow = 'opened-pack';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+  test('Android uses a platform-bound Play Integrity token', () async {
+    const path = '/api/mobile/vision';
+    final keyId = base64.encode(List.filled(32, 0));
+    String? requestBody;
+    String? requestData;
+    Map<String, dynamic>? challengeRequest;
+    Map<String, String>? requestHeaders;
+    final nativeMethods = <String>[];
+    final client = AiClient(
+      app,
+      isAndroid: true,
+      native: (method, arguments) async {
+        nativeMethods.add(method);
+        if (method == 'assert') requestData = arguments['data'] as String?;
+        return method == 'attestKey' ? keyId : 'integrity-token';
+      },
+      transport: (requestPath, body, headers) async {
+        if (requestPath == '/api/mobile/challenge') {
+          challengeRequest = jsonDecode(body) as Map<String, dynamic>;
+          return {
+            'schemaVersion': 1,
+            'nonce': 'nonce',
+            'challengeId': 'challenge',
+          };
+        }
+        requestBody = body;
+        requestHeaders = headers;
+        return {'schemaVersion': 1};
+      },
+    );
+
+    await client.request(path, {'photo': 'encoded'});
+    expect(nativeMethods, ['attestKey', 'assert']);
+    expect(challengeRequest?['platform'], 'android');
+    expect(challengeRequest?['purpose'], path);
+    expect(requestData, 'nonce\n$path\n$requestBody');
+    expect(requestHeaders?['X-Boxill-App'], app);
+    expect(requestHeaders?['X-Boxill-Platform'], 'android');
+    expect(requestHeaders?['X-Boxill-Integrity-Token'], 'integrity-token');
+    expect(requestHeaders?.containsKey('X-Boxill-Assertion'), isFalse);
+  });
   testWidgets('cancelling consent sends neither notes nor device proof', (
     tester,
   ) async {

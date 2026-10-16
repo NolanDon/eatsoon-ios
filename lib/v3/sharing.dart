@@ -387,7 +387,7 @@ class _SharingScreenState extends State<SharingScreen> {
     padding: const EdgeInsets.all(24),
     children: [
       Text(
-        'Bring a shared collection here',
+        'Receive a kitchen list',
         style: Theme.of(context).textTheme.titleLarge,
       ),
       const SizedBox(height: 12),

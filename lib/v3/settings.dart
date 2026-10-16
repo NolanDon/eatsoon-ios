@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,10 +75,11 @@ class _AppSettingsState extends State<AppSettings> {
       minVerticalPadding: 16,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: ink.withValues(alpha: .18)),
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide.none,
       ),
-      leading: Icon(icon),
+      tileColor: Colors.white.withValues(alpha: .65),
+      leading: Icon(icon, color: ink),
       title: Text(title),
       subtitle: subtitle == null ? null : Text(subtitle),
       trailing: const Icon(Icons.chevron_right),
@@ -92,7 +94,7 @@ class _AppSettingsState extends State<AppSettings> {
         child: Column(
           children: [
             MainTitle(
-              'Settings',
+              'Kitchen preferences',
               trailing: IconButton(
                 tooltip: 'Close',
                 onPressed: () => Navigator.pop(context),
@@ -128,7 +130,7 @@ class _AppSettingsState extends State<AppSettings> {
                   ),
                   const SizedBox(height: 28),
                   row(
-                    'Plans and restore purchases',
+                    'EatSoon kitchen pass',
                     Icons.workspace_premium_outlined,
                     () => widget.plans(),
                   ),
@@ -136,10 +138,12 @@ class _AppSettingsState extends State<AppSettings> {
                     'Manage subscriptions',
                     Icons.subscriptions_outlined,
                     () => openLink(
-                      'https://apps.apple.com/account/subscriptions',
+                      defaultTargetPlatform == TargetPlatform.android
+                          ? 'https://play.google.com/store/account/subscriptions'
+                          : 'https://apps.apple.com/account/subscriptions',
                     ),
                   ),
-                  row('Tips and photo guide', Icons.auto_stories_outlined, () {
+                  row('Scanning food and labels', Icons.auto_stories_outlined, () {
                     Navigator.pop(context);
                     widget.replay();
                   }),
@@ -150,7 +154,7 @@ class _AppSettingsState extends State<AppSettings> {
                     'goal',
                   ].contains(appKind))
                     row(
-                      'Enable date reminders',
+                      'Food check reminders',
                       Icons.notifications_none,
                       () => widget.reminders(),
                     ),
@@ -193,17 +197,17 @@ class _AppSettingsState extends State<AppSettings> {
                   ),
                   const SizedBox(height: 24),
                   row(
-                    'Copy records backup',
+                    'Copy kitchen backup',
                     Icons.copy_outlined,
                     () => widget.copyBackup(),
                   ),
                   row(
-                    'Restore records backup',
+                    'Recover my kitchen',
                     Icons.restore,
                     () => widget.restore(),
                   ),
                   row(
-                    'Previous records',
+                    'Earlier food lists',
                     Icons.history,
                     () => widget.oldRecords(),
                   ),

@@ -18,7 +18,7 @@ class NotificationService {
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
-    const settings = InitializationSettings(iOS: ios);
+    const settings = InitializationSettings(android: AndroidInitializationSettings('@drawable/ic_notification'), iOS: ios);
     await plugin.initialize(settings: settings);
     return NotificationService(plugin);
   }

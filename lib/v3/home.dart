@@ -113,10 +113,22 @@ class _HomeState extends State<V3Home> {
 
   Future<void> saveNew(List<Item> values) async {
     need(
-      isPro || store!.items.length + values.length <= freeLimit,
+      isPro ||
+          store!.items.length +
+                  values
+                      .where((v) => !store!.items.any((e) => sameFood(e, v)))
+                      .fold<List<Item>>([], (unique, v) {
+                        if (!unique.any((e) => sameFood(e, v))) unique.add(v);
+                        return unique;
+                      })
+                      .length <=
+              freeLimit,
       'Choose up to $freeLimit items in the free collection, or use Plus.',
     );
+    final before = store!.items.length;
     await store!.addAll(values);
+    if (mounted && store!.items.length == before)
+      notice(context, 'Already in your kitchen. No duplicates added.');
     if (mounted) {
       setState(() => justSaved = true);
       Future<void>.delayed(const Duration(seconds: 3), () {
@@ -149,7 +161,7 @@ class _HomeState extends State<V3Home> {
 
   Future<void> create({String? source}) async {
     if (busy) return;
-    if (!isPro && store!.items.length >= freeLimit) {
+    if (!isPro && store!.items.length >= freeLimit && appKind != 'fridge') {
       await paywall();
       if (!isPro || !mounted) return;
     }
@@ -170,9 +182,9 @@ class _HomeState extends State<V3Home> {
                 ),
                 const SizedBox(height: 24),
                 MainAction(
-                  'Camera',
+                  'Scan food',
                   () => Navigator.pop(sheet, 'camera'),
-                  icon: Icons.camera_alt_outlined,
+                  icon: Icons.document_scanner_outlined,
                   fontSize: 18,
                 ),
                 const SizedBox(height: 12),
@@ -183,14 +195,14 @@ class _HomeState extends State<V3Home> {
                   ),
                   onPressed: () => Navigator.pop(sheet, 'photos'),
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('Choose a photo'),
+                  label: const Text('Pick a food photo'),
                 ),
                 if (appKind != 'clothing' &&
                     appKind != 'drawing' &&
                     introduction == 3)
                   TextButton(
                     onPressed: () => Navigator.pop(sheet, 'manual'),
-                    child: const Text('Enter manually'),
+                    child: const Text('Type food details'),
                   ),
               ],
             ),
@@ -774,7 +786,7 @@ class _HomeState extends State<V3Home> {
                         child: Text(
                           busy
                               ? 'Analyzing your photo. Please keep the app open.'
-                              : 'Saved',
+                              : 'Stock my kitchen',
                         ),
                       ),
                       if (busy) ...[
@@ -787,7 +799,7 @@ class _HomeState extends State<V3Home> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
                 child: MainAction(
-                  introduction == 0 ? 'Get started' : 'Take a photo',
+                  introduction == 0 ? 'Get started' : 'Scan food',
                   busy
                       ? null
                       : () => introduction == 0
@@ -795,7 +807,7 @@ class _HomeState extends State<V3Home> {
                             : create(source: 'camera'),
                   icon: introduction == 0
                       ? Icons.arrow_forward
-                      : Icons.camera_alt_outlined,
+                      : Icons.document_scanner_outlined,
                 ),
               ),
               if (introduction == 1)
@@ -805,7 +817,7 @@ class _HomeState extends State<V3Home> {
                     width: double.infinity,
                     child: OutlinedButton(
                       onPressed: busy ? null : () => create(source: 'photos'),
-                      child: const Text('Choose a photo'),
+                      child: const Text('Pick a food photo'),
                     ),
                   ),
                 ),
@@ -839,7 +851,7 @@ class _HomeState extends State<V3Home> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    tooltip: 'Share or receive',
+                    tooltip: 'Share kitchen list',
                     onPressed: busy
                         ? null
                         : () => showSharing(
@@ -848,12 +860,12 @@ class _HomeState extends State<V3Home> {
                             directory,
                             onImported: importedShared,
                           ),
-                    icon: const Icon(Icons.ios_share_outlined),
+                    icon: const Icon(Icons.playlist_add),
                   ),
                   IconButton(
-                    tooltip: 'Settings',
+                    tooltip: 'Kitchen settings',
                     onPressed: settings,
-                    icon: const Icon(Icons.settings_outlined),
+                    icon: const Icon(Icons.kitchen_outlined),
                   ),
                 ],
               ),
@@ -864,7 +876,7 @@ class _HomeState extends State<V3Home> {
                 children: [
                   Mascot(pose: busy ? 'thinking' : 'success', height: 76),
                   const SizedBox(width: 8),
-                  Text(busy ? 'Looking closely' : 'Saved'),
+                  Text(busy ? 'Looking closely' : 'Stock my kitchen'),
                 ],
               ),
             if (busy) const LinearProgressIndicator(),
