@@ -395,7 +395,7 @@ class CorePreferences extends StatelessWidget {
         'Food list',
         'pantryView',
         0,
-        <int, String>{0: 'All food', 1: 'Check within 3 days'},
+        <int, String>{0: 'All food', 1: 'Within 3 days'},
       ),
       'maintenance' => (
         'Service list order',
