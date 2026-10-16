@@ -124,7 +124,7 @@ void main() {
     await tester.tap(find.text('Open my kitchen'));
     await tester.pumpAndSettle();
     for (var i = 0; i < (introSteps.length - 2); i++) {
-      await tester.tap(find.text('See how it works'));
+      await tester.tap(find.text('See how'));
       await tester.pumpAndSettle();
     }
     await tester.tap(find.text(needsReminderIntro ? 'Skip' : 'Stock my fridge'));
@@ -139,7 +139,7 @@ void main() {
     await tester.tap(find.text('Scan food'));
     await tester.pumpAndSettle();
     expect(find.text('Type food details'), findsNothing);
-    expect(find.text('Pick a food photo'), findsOneWidget);
+    expect(find.text('Choose food photo'), findsOneWidget);
     expect(find.text('Skip'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

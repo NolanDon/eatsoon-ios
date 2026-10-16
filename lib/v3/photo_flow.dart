@@ -66,7 +66,7 @@ Future<List<Item>?> readPhoto(
               ),
               const SizedBox(height: 22),
               MainAction(
-                'Find food in photo',
+                'Find food',
                 () => Navigator.pop(sheet, true),
                 icon: Icons.auto_awesome_outlined,
               ),

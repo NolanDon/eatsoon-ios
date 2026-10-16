@@ -431,7 +431,7 @@ class _FeatureOnboardingState extends State<FeatureOnboarding> {
                 ? 'Open my kitchen'
                 : index == steps.length - 1
                 ? 'Stock my fridge'
-                : 'See how it works',
+                : 'See how',
             enabling
                 ? null
                 : needsReminderIntro && index == steps.length - 1

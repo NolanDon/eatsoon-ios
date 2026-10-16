@@ -626,14 +626,14 @@ class _ShareReceiptScreenState extends State<ShareReceiptScreen> {
                   ),
                 const SizedBox(height: 24),
                 MainAction(
-                  'Share code and app link',
+                  'Share code',
                   busy || !usable ? null : shareLink,
                   icon: Icons.ios_share_outlined,
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
                   onPressed: busy ? null : reshare,
-                  child: const Text('Create a fresh code'),
+                  child: const Text('Create new code'),
                 ),
                 TextButton(
                   onPressed: busy ? null : refresh,

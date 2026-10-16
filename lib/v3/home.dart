@@ -195,7 +195,7 @@ class _HomeState extends State<V3Home> {
                   ),
                   onPressed: () => Navigator.pop(sheet, 'photos'),
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('Pick a food photo'),
+                  label: const Text('Choose food photo'),
                 ),
                 if (appKind != 'clothing' &&
                     appKind != 'drawing' &&
@@ -705,7 +705,7 @@ class _HomeState extends State<V3Home> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: OutlinedButton(
                   onPressed: restore,
-                  child: const Text('Restore a valid backup'),
+                  child: const Text('Restore backup'),
                 ),
               ),
             ],
@@ -817,7 +817,7 @@ class _HomeState extends State<V3Home> {
                     width: double.infinity,
                     child: OutlinedButton(
                       onPressed: busy ? null : () => create(source: 'photos'),
-                      child: const Text('Pick a food photo'),
+                      child: const Text('Choose food photo'),
                     ),
                   ),
                 ),
@@ -834,7 +834,7 @@ class _HomeState extends State<V3Home> {
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.grey.shade700,
                 ),
-                child: const Text('Have a share code?'),
+                child: const Text('Enter share code'),
               ),
             ],
           ),
@@ -860,12 +860,12 @@ class _HomeState extends State<V3Home> {
                             directory,
                             onImported: importedShared,
                           ),
-                    icon: const Icon(Icons.playlist_add),
+                    icon: const Icon(Icons.ios_share_outlined),
                   ),
                   IconButton(
                     tooltip: 'Kitchen settings',
                     onPressed: settings,
-                    icon: const Icon(Icons.kitchen_outlined),
+                    icon: const Icon(Icons.settings_outlined),
                   ),
                 ],
               ),

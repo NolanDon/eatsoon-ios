@@ -77,7 +77,7 @@ void main(){
    addTearDown(()=>TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(visionChannel,null));
    await t.pumpWidget(MaterialApp(theme:v3Theme(),home:Scaffold(body:FeatureOnboarding(onDone:()=>finished=true))));await t.pumpAndSettle();
    await t.tap(find.text('Open my kitchen'));await t.pumpAndSettle();
-   await t.tap(find.text('See how it works'));await t.pumpAndSettle();await t.tap(find.text('See how it works'));await t.pumpAndSettle();
+   await t.tap(find.text('See how'));await t.pumpAndSettle();await t.tap(find.text('See how'));await t.pumpAndSettle();
    expect(requests,0);expect(find.text('Allow notifications'),findsOneWidget);expect(find.text('Skip'),findsOneWidget);
    await t.tap(find.text('Allow notifications'));await t.pumpAndSettle();expect(requests,1);expect(finished,true);expect((await SharedPreferences.getInstance()).getBool('v3.$appId.reminders'),true);
  });

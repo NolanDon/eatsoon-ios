@@ -9,9 +9,9 @@ const appName = 'EatSoon';
 const appKind = 'fridge';
 const appTagline = 'Your fridge, ready to use.';
 const brandFont = 'Bricolage Grotesque';
-const paper = Color(0xFFF5EDE0);
-const ink = Color(0xFF40382E);
-const accent = Color(0xFF68866B);
+const paper = Color(0xFFF0F6F2);
+const ink = Color(0xFF244D38);
+const accent = Color(0xFF5C8A61);
 bool _licensed = false;
 ThemeData v3Theme() {
   if (!_licensed) {
@@ -123,6 +123,21 @@ ThemeData v3Theme() {
         fontSize: 30,
         fontWeight: FontWeight.w700,
         color: ink,
+      ),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: paper,
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: ink.withValues(alpha: .24)),
+      ),
+      textStyle: const TextStyle(
+        fontFamily: brandFont,
+        color: ink,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
       ),
     ),
     dividerTheme: DividerThemeData(color: ink.withValues(alpha: .12)),

@@ -64,28 +64,64 @@ class _AppSettingsState extends State<AppSettings> {
     if (mounted) notice(context, 'Could not open this link. Please try again.');
   }
 
+  Widget section(String title) => Padding(
+    padding: const EdgeInsets.only(top: 20, bottom: 14),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Divider(color: ink.withValues(alpha: .3)),
+        const SizedBox(height: 8),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.w700),
+        ),
+      ],
+    ),
+  );
+
   Widget row(
     String title,
     IconData icon,
     VoidCallback action, {
     String? subtitle,
-  }) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: ListTile(
-      minVerticalPadding: 16,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide.none,
+  }) {
+    final upgrade = title == 'Upgrade';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: upgrade
+            ? ink
+            : Color.alphaBlend(accent.withValues(alpha: .22), paper),
+        borderRadius: BorderRadius.circular(16),
+        child: ListTile(
+          minVerticalPadding: 14,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 6,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: ink.withValues(alpha: .24)),
+          ),
+          leading: upgrade ? null : Icon(icon, color: ink),
+          title: Text(
+            title,
+            style: TextStyle(
+              color: upgrade ? Colors.white : ink,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: upgrade ? Colors.white : ink,
+          ),
+          onTap: action,
+        ),
       ),
-      tileColor: Colors.white.withValues(alpha: .65),
-      leading: Icon(icon, color: ink),
-      title: Text(title),
-      subtitle: subtitle == null ? null : Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: action,
-    ),
-  );
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final choices = ExperiencePreferences.instance;
@@ -94,7 +130,7 @@ class _AppSettingsState extends State<AppSettings> {
         child: Column(
           children: [
             MainTitle(
-              'Kitchen preferences',
+              'Settings',
               trailing: IconButton(
                 tooltip: 'Close',
                 onPressed: () => Navigator.pop(context),
@@ -128,12 +164,8 @@ class _AppSettingsState extends State<AppSettings> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 28),
-                  row(
-                    'EatSoon kitchen pass',
-                    Icons.workspace_premium_outlined,
-                    () => widget.plans(),
-                  ),
+                  section('Membership'),
+                  row('Upgrade', Icons.diamond_outlined, () => widget.plans()),
                   row(
                     'Manage subscriptions',
                     Icons.subscriptions_outlined,
@@ -143,10 +175,14 @@ class _AppSettingsState extends State<AppSettings> {
                           : 'https://apps.apple.com/account/subscriptions',
                     ),
                   ),
-                  row('Scanning food and labels', Icons.auto_stories_outlined, () {
-                    Navigator.pop(context);
-                    widget.replay();
-                  }),
+                  row(
+                    'Food scanning guide',
+                    Icons.auto_stories_outlined,
+                    () {
+                      Navigator.pop(context);
+                      widget.replay();
+                    },
+                  ),
                   if ([
                     'fridge',
                     'plant',
@@ -158,6 +194,7 @@ class _AppSettingsState extends State<AppSettings> {
                       Icons.notifications_none,
                       () => widget.reminders(),
                     ),
+                  section('Preferences'),
                   const CorePreferences(),
                   const SizedBox(height: 8),
                   ListenableBuilder(
@@ -196,6 +233,7 @@ class _AppSettingsState extends State<AppSettings> {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  section('Your data'),
                   row(
                     'Copy kitchen backup',
                     Icons.copy_outlined,
@@ -212,15 +250,14 @@ class _AppSettingsState extends State<AppSettings> {
                     () => widget.oldRecords(),
                   ),
                   const SizedBox(height: 12),
+                  section('Help and legal'),
                   row(
-                    'Feedback and support',
+                    'Support',
                     Icons.support_agent,
                     () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const SupportScreen()),
                     ),
-                    subtitle:
-                        'Report a problem, ask a question or share an idea',
                   ),
                   row(
                     'Privacy',
@@ -349,7 +386,7 @@ class CorePreferences extends StatelessWidget {
         <int, String>{0: 'Smart fractions', 1: 'Decimals'},
       ),
       'plant' => (
-        'New plant soil-check interval',
+        'Soil check interval',
         'wateringDays',
         7,
         <int, String>{3: '3 days', 7: '7 days', 14: '14 days'},

@@ -131,7 +131,9 @@ class DashboardState extends State<Dashboard> {
                   separatorBuilder: (_, i) => const Divider(height: 30),
                   itemBuilder: (_, i) {
                     final item = items[i];
-                    final when = dateOrNull(item['nextDate']);
+                    final when =
+                        dateOrNull(item['labelDate']) ??
+                        dateOrNull(item['nextDate']);
                     final days = when
                         ?.difference(
                           DateTime(
@@ -144,14 +146,14 @@ class DashboardState extends State<Dashboard> {
                     return Row(
                       children: [
                         Container(
-                          width: 54,
-                          height: 66,
+                          width: 38,
+                          height: 44,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: ink.withValues(alpha: .08),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: Icon(foodIcon(item), size: 30, color: ink),
+                          child: Icon(foodIcon(item), size: 23, color: ink),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -176,6 +178,10 @@ class DashboardState extends State<Dashboard> {
                                       : days <= 0
                                       ? 'Check today'
                                       : 'Check in $days days',
+                                  style: TextStyle(
+                                    color: expiryColor(days),
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                                 if (item['labelDate'] == null)
                                   const Text(
@@ -191,21 +197,35 @@ class DashboardState extends State<Dashboard> {
                           onPressed: () => used(item),
                           icon: const Icon(Icons.remove_circle_outline),
                           style: IconButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            minimumSize: const Size(54, 54),
+                            backgroundColor: Colors.transparent,
+                            minimumSize: const Size(48, 48),
                           ),
                         ),
                         PopupMenuButton<String>(
+                          tooltip: 'Item options',
+                          icon: const Icon(Icons.more_horiz),
                           onSelected: (v) =>
                               v == 'edit' ? a.edit(item) : a.remove(item),
                           itemBuilder: (_) => const [
                             PopupMenuItem(
                               value: 'edit',
-                              child: Text('Edit item'),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit_outlined, size: 20),
+                                  SizedBox(width: 12),
+                                  Text('Edit item'),
+                                ],
+                              ),
                             ),
                             PopupMenuItem(
                               value: 'delete',
-                              child: Text('Delete'),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_outline, size: 20),
+                                  SizedBox(width: 12),
+                                  Text('Delete'),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -257,4 +277,12 @@ IconData foodIcon(Item item) {
     return Icons.local_cafe_outlined;
   if (item['location'] == 'freezer') return Icons.ac_unit;
   return Icons.shopping_basket_outlined;
+}
+
+Color expiryColor(int? days) {
+  if (days == null) return ink;
+  if (days <= 1) return const Color(0xFFB42318);
+  if (days <= 3) return const Color(0xFFAD4700);
+  if (days <= 6) return const Color(0xFF816000);
+  return const Color(0xFF277044);
 }

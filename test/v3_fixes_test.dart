@@ -94,7 +94,7 @@ void main() {
                 ? 'Open my kitchen'
                 : i == introSteps.length - 1
                 ? 'Stock my fridge'
-                : 'See how it works',
+                : 'See how',
           ),
         );
       }
@@ -118,7 +118,7 @@ void main() {
       expect(find.byType(AppSettings), findsOneWidget);
       expect(find.text('Your profile'), findsOneWidget);
       final first = t.getRect(
-        find.widgetWithText(ListTile, 'EatSoon kitchen pass'),
+        find.widgetWithText(ListTile, 'Upgrade'),
       );
       final second = t.getRect(
         find.widgetWithText(ListTile, 'Manage subscriptions'),
@@ -132,20 +132,28 @@ void main() {
       expect(prefs.getString('v3.$appId.profile'), 'Alex');
       expect(find.text('Alex'), findsOneWidget);
       await t.scrollUntilVisible(
-        find.text('Feedback and support'),
+        find.text('Support'),
         300,
         scrollable: find.byType(Scrollable).last,
       );
       await t.pumpAndSettle();
-      await t.ensureVisible(find.text('Feedback and support'));
+      await t.ensureVisible(find.text('Support'));
       await t.pumpAndSettle();
-      await t.tap(find.text('Feedback and support'));
+      await t.tap(find.text('Support'));
       await t.pumpAndSettle();
       expect(find.byType(SupportScreen), findsOneWidget);
+      String? clipboard;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'Clipboard.setData') {
+          clipboard = (call.arguments as Map)['text'] as String?;
+        }
+        return null;
+      });
       await t.tap(find.text('Copy support email'));
       await t.pumpAndSettle();
       expect(
-        (await Clipboard.getData('text/plain'))?.text,
+        clipboard,
         'support@boxillapps.com',
       );
       expect(t.takeException(), isNull);
@@ -212,7 +220,7 @@ void main() {
   final capture=Completer<dynamic>();
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('com.boxill/vision'),(call)async{if(call.method=='directory')return '';if(call.method=='capture')return capture.future;return null;});
   await t.pumpWidget(MaterialApp(theme:v3Theme(),home:const V3Home()));await t.pumpAndSettle();
-  await t.tap(find.text('Open my kitchen'));await t.pumpAndSettle();for(var i=0;i<(introSteps.length - 2);i++){await t.tap(find.text('See how it works'));await t.pumpAndSettle();}await t.tap(find.text(needsReminderIntro ? 'Skip' : 'Stock my fridge'));await t.pumpAndSettle();
+  await t.tap(find.text('Open my kitchen'));await t.pumpAndSettle();for(var i=0;i<(introSteps.length - 2);i++){await t.tap(find.text('See how'));await t.pumpAndSettle();}await t.tap(find.text(needsReminderIntro ? 'Skip' : 'Stock my fridge'));await t.pumpAndSettle();
   await t.tap(find.text('Scan food'));await t.pump(const Duration(milliseconds:700));
   final mascot=find.byWidgetPredicate((w)=>w is Mascot&&w.pose=='thinking');expect(mascot,findsOneWidget);
   final action=t.getRect(find.widgetWithText(FilledButton,'Scan food'));expect(action.top-t.getRect(mascot).bottom,greaterThanOrEqualTo(32));expect(t.takeException(),isNull);
